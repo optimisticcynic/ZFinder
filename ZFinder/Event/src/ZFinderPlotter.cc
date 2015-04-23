@@ -14,6 +14,7 @@
 
 namespace zf {
     // Constructor
+
     ZFinderPlotter::ZFinderPlotter(TFileDirectory& tdir, const bool USE_MC) : USE_MC_(USE_MC) {
         /*
          * Initialize a set of histograms and associate them with a given TDirectory.
@@ -50,7 +51,7 @@ namespace zf {
         // z0_pt (dressed)
         const std::string z0_pt_name = "Z0 p_{T}";
         const std::string z0_pt_file = "z_pt";
-        z0_pt_ = tdir.make<TH1D>(z0_pt_file.c_str(), z0_pt_name.c_str(), 200, 0., 200.);
+        z0_pt_ = tdir.make<TH1D>(z0_pt_file.c_str(), z0_pt_name.c_str(), 400, 0., 400.);
         z0_pt_->GetXaxis()->SetTitle("p_{T,Z}");
         z0_pt_->GetYaxis()->SetTitle("Counts / GeV");
 
@@ -327,6 +328,13 @@ namespace zf {
         phistar_->GetXaxis()->SetTitle("#phi*");
         phistar_->GetYaxis()->SetTitle("Counts");
 
+        const std::string phistarsplit_name = "#phisplit*";
+        const std::string phistarsplit_file = "phistar_split";
+        phistar_split = tdir.make<TH1D>(phistarsplit_file.c_str(), phistarsplit_name.c_str(), ATLAS_PHISTAR_BINNING_SPLIT.size() - 1, &ATLAS_PHISTAR_BINNING_SPLIT[0]);
+        phistar_split->GetXaxis()->SetTitle("#phi*");
+        phistar_split->GetYaxis()->SetTitle("Counts");
+
+
         // phistar born
         const std::string phistar_name_born = "Born #phi*";
         const std::string phistar_name_file = "phistar_born";
@@ -457,11 +465,12 @@ namespace zf {
             z0_rapidity_->Fill(ZF_EVENT.reco_z.y, EVENT_WEIGHT);
             z0_pt_->Fill(ZF_EVENT.reco_z.pt, EVENT_WEIGHT);
             phistar_->Fill(ZF_EVENT.reco_z.phistar, EVENT_WEIGHT);
+            phistar_split->Fill(ZF_EVENT.reco_z.phistar, EVENT_WEIGHT);
             deltaR_->Fill(ZF_EVENT.reco_z.deltaR, EVENT_WEIGHT);
             phistar_supercluster_->Fill(ZF_EVENT.reco_z.scPhistar, EVENT_WEIGHT);
             phistar_vs_sc_phistar_->Fill(ZF_EVENT.reco_z.phistar, ZF_EVENT.reco_z.scPhistar, EVENT_WEIGHT);
             // We only want to plot this if corresponding gen info exists
-            if(!ZF_EVENT.is_real_data) {
+            if (!ZF_EVENT.is_real_data) {
                 other_phistar_->Fill(ZF_EVENT.reco_z.other_phistar, EVENT_WEIGHT);
                 other_y_->Fill(ZF_EVENT.reco_z.other_y, EVENT_WEIGHT);
                 phistar_born_->Fill(ZF_EVENT.reco_z.bornPhistar, EVENT_WEIGHT);
@@ -512,8 +521,7 @@ namespace zf {
                             EVENT_WEIGHT
                             );
                 }
-            }
-            else if (ELECTRON_0 == 1 && ELECTRON_1 == 0) {
+            } else if (ELECTRON_0 == 1 && ELECTRON_1 == 0) {
                 if (ZF_EVENT.e1 != nullptr) {
                     e0_pt_->Fill(ZF_EVENT.e1->pt(), EVENT_WEIGHT);
                     e0_eta_->Fill(ZF_EVENT.e1->eta(), EVENT_WEIGHT);
@@ -561,14 +569,14 @@ namespace zf {
             pileup_->Fill(ZF_EVENT.reco_vert.num, EVENT_WEIGHT);
             true_vert_->Fill(ZF_EVENT.reco_vert.true_num, EVENT_WEIGHT);
             nelectrons_->Fill(ZF_EVENT.n_reco_electrons, EVENT_WEIGHT);
-        }
-        else if (USE_MC_ && !ZF_EVENT.is_real_data) {
+        } else if (USE_MC_ && !ZF_EVENT.is_real_data) {
             z0_mass_all_->Fill(ZF_EVENT.truth_z.m, EVENT_WEIGHT);
             z0_mass_coarse_->Fill(ZF_EVENT.truth_z.m, EVENT_WEIGHT);
             z0_mass_fine_->Fill(ZF_EVENT.truth_z.m, EVENT_WEIGHT);
             z0_rapidity_->Fill(ZF_EVENT.truth_z.y, EVENT_WEIGHT);
             z0_pt_->Fill(ZF_EVENT.truth_z.pt, EVENT_WEIGHT);
             phistar_->Fill(ZF_EVENT.truth_z.phistar, EVENT_WEIGHT);
+            phistar_split->Fill(ZF_EVENT.truth_z.phistar, EVENT_WEIGHT);
             phistar_born_->Fill(ZF_EVENT.truth_z.bornPhistar, EVENT_WEIGHT);
             phistar_naked_->Fill(ZF_EVENT.truth_z.nakedPhistar, EVENT_WEIGHT);
             phistar_supercluster_->Fill(ZF_EVENT.truth_z.scPhistar, EVENT_WEIGHT);
@@ -633,8 +641,7 @@ namespace zf {
                             EVENT_WEIGHT
                             );
                 }
-            }
-            else if (ELECTRON_0 == 1 && ELECTRON_1 == 0) {
+            } else if (ELECTRON_0 == 1 && ELECTRON_1 == 0) {
                 if (ZF_EVENT.e1_truth != nullptr) {
                     e0_pt_->Fill(ZF_EVENT.e1_truth->pt(), EVENT_WEIGHT);
                     e0_pt_naked_->Fill(ZF_EVENT.e1_truth->nakedPt(), EVENT_WEIGHT);
@@ -693,7 +700,7 @@ namespace zf {
             // Event Info
             pileup_->Fill(ZF_EVENT.truth_vert.num, EVENT_WEIGHT);
             true_vert_->Fill(ZF_EVENT.truth_vert.true_num, EVENT_WEIGHT);
-            nelectrons_->Fill(2, EVENT_WEIGHT);  // We only ever grab the two electrons from the Z
+            nelectrons_->Fill(2, EVENT_WEIGHT); // We only ever grab the two electrons from the Z
         }
         // Event weights, they are of course, unweighted
         baseweights_->Fill(ZF_EVENT.event_weight);
@@ -705,11 +712,11 @@ namespace zf {
                 && ZF_EVENT.e1_truth != nullptr
                 && ZF_EVENT.e0 != nullptr
                 && ZF_EVENT.e1 != nullptr
-           ) {
+                ) {
             phistar_vs_truth_->Fill(
                     ZF_EVENT.reco_z.phistar / ZF_EVENT.truth_z.phistar,
                     EVENT_WEIGHT
                     );
         }
     }
-}  // namespace zf
+} // namespace zf

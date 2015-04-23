@@ -58,7 +58,7 @@ namespace zf {
         event_.clear_values();
         weight_id_vector_.clear();
 
-        // Set the weights
+        // Set the weightsg
         if (IS_MC_) {
             // The weight from the generator
             const double GEN_WEIGHT = zf_event.weight_natural_mc;

@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input file
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring('file:/hdfs/cms/phedex/store/mc/Summer12_DR53X/DYToEE_M-20_CT10_TuneZ2star_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/AC6646E7-36F0-E111-B2F8-00259073E3FC.root')
+        fileNames = cms.untracked.vstring('/store/mc/Summer12_DR53X/DYToEE_M-20_CT10_TuneZ2star_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/AC6646E7-36F0-E111-B2F8-00259073E3FC.root')
         )
 
 # Output file
@@ -49,23 +49,23 @@ process.pfiso = cms.Sequence(process.pfParticleSelectionSequence + process.eleIs
 
 # Compute PDF weights for uncertainty calculation
 process.pdfWeights = cms.EDProducer("PdfWeightProducer",
-        # Fix POWHEG if buggy (this PDF set will also appear on output,
-        # so only two more PDF sets can be added in PdfSetNames if not "")
-        #FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
+#         Fix POWHEG if buggy (this PDF set will also appear on output,
+#         so only two more PDF sets can be added in PdfSetNames if not "")
+        FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
         GenTag = cms.untracked.InputTag("genParticles"),
         PdfInfoTag = cms.untracked.InputTag("generator"),
         # Produce PDF weights (maximum is 3)
         PdfSetNames = cms.untracked.vstring(
-            "NNPDF23_nlo_as_0118.LHgrid",
-            "MSTW2008nlo68cl.LHgrid",
+#            "NNPDF23_nlo_as_0118.LHgrid",
+#            "MSTW2008nlo68cl.LHgrid",
             "CT10.LHgrid",
-            #"cteq6ll.LHpdf",
+#            "cteq6ll.LHpdf",
             ),
         )
 
 # Compute FSR weights for uncertainty calculation
 process.fsrWeight = cms.EDProducer("FSRWeightProducer",
-        GenTag = cms.untracked.InputTag("genParticles"),
+       GenTag = cms.untracked.InputTag("genParticles"),
         )
 
 # ZFinder
