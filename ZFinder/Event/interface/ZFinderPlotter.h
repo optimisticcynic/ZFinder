@@ -87,6 +87,7 @@ namespace zf {
             TH1D* other_phistar_;
             TH1D* other_y_;
             TH2D* phistar_vs_sc_phistar_;
+            TH1D* phistar_split;
 
             // Use the MC or reco data
             const bool USE_MC_;

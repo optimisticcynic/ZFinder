@@ -48,8 +48,8 @@ combined_single = cms.untracked.PSet(
 
 combined_single_low = cms.untracked.PSet(
         name = cms.untracked.string("Combined Single Lowered Threshold"),
-        cuts0 = cms.untracked.vstring("acc(ALL)", "type_gsf", "acc(MUON_TIGHT)", "trig(single_ele)", "pt>29.1", "eg_tight"),
-        cuts1 = cms.untracked.vstring("acc(ALL)", "type_gsf", "acc(MUON_LOOSE)", "acc(ALL)",         "pt>19.4", "eg_medium"),
+        cuts0 = cms.untracked.vstring("acc(ALL)", "type_gsf", "acc(MUON_TIGHT)", "trig(single_ele)", "pt>29.91", "eg_tight"),
+        cuts1 = cms.untracked.vstring("acc(ALL)", "type_gsf", "acc(MUON_LOOSE)", "acc(ALL)",         "pt>19.94", "eg_medium"),
         min_mz = MIN_MZ,
         max_mz = MAX_MZ,
         use_truth_mass = cms.untracked.bool(False),
@@ -58,8 +58,8 @@ combined_single_low = cms.untracked.PSet(
 
 combined_single_high = cms.untracked.PSet(
         name = cms.untracked.string("Combined Single Higher Threshold"),
-        cuts0 = cms.untracked.vstring("acc(ALL)", "type_gsf", "acc(MUON_TIGHT)", "trig(single_ele)", "pt>30.9", "eg_tight"),
-        cuts1 = cms.untracked.vstring("acc(ALL)", "type_gsf", "acc(MUON_LOOSE)", "acc(ALL)",         "pt>20.6", "eg_medium"),
+        cuts0 = cms.untracked.vstring("acc(ALL)", "type_gsf", "acc(MUON_TIGHT)", "trig(single_ele)", "pt>30.09", "eg_tight"),
+        cuts1 = cms.untracked.vstring("acc(ALL)", "type_gsf", "acc(MUON_LOOSE)", "acc(ALL)",         "pt>20.06", "eg_medium"),
         min_mz = MIN_MZ,
         max_mz = MAX_MZ,
         use_truth_mass = cms.untracked.bool(False),

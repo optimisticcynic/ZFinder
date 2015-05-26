@@ -235,7 +235,9 @@ namespace zf {
             iEvent.getByLabel(pdfWeightTag_cteq, weightHandle_cteq);
             weights_cteq = (*weightHandle_cteq);
 
-            edm::InputTag pdfWeightTag_mstw("pdfWeights:MSTW2008nlo68cl"); // or any other PDF set
+ 	    weights_mstw = {0};
+            weights_nnpdf = {0};
+  /*          edm::InputTag pdfWeightTag_mstw("pdfWeights:MSTW2008nlo68cl"); // or any other PDF set
             edm::Handle<std::vector<double> > weightHandle_mstw;
             iEvent.getByLabel(pdfWeightTag_mstw, weightHandle_mstw);
             weights_mstw = (*weightHandle_mstw);
@@ -243,7 +245,7 @@ namespace zf {
             edm::InputTag pdfWeightTag_nnpdf("pdfWeights:NNPDF23"); // or any other PDF set
             edm::Handle<std::vector<double> > weightHandle_nnpdf;
             iEvent.getByLabel(pdfWeightTag_nnpdf, weightHandle_nnpdf);
-            weights_nnpdf = (*weightHandle_nnpdf);
+            weights_nnpdf = (*weightHandle_nnpdf);*/
         }
         else {
             weights_cteq = {0};
