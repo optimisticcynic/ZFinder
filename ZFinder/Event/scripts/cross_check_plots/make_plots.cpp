@@ -28,15 +28,16 @@ int main() {
             );
     // Signal MC
     TFile* mc_tfile = new TFile(
-            "/data/whybee0a/user/gude_2/MC/20150318_MADGRAPH/MadGraph_DRESSED_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_MADGRAPH/MadGraph_DRESSED_hadded.root"
+            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderMCPDFweight15-24-27/Powheg15-6-28.root"
             , "READ");
     DataConfig mc_config(
             mc_tfile,
             CUTLEVEL,
             "DY to ee",
             // * 3 because 1177.3 is to a single flavor, but the MC has all 3
-            1177.3 * 3.,  // cross section in pb, from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
-            //1966.7, // Powheg
+            //1177.3 * 3.,  // cross section in pb, from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
+            1966.7*3, // Powheg differnt cross section cause does smaller min energy
             "ZFinder/weighted_counter",  // TDir from before any cut
             SIGNAL_MC
             );

@@ -11,9 +11,341 @@
 #include <THStack.h>
 #include <TLatex.h>
 #include <TLegend.h>
+#include <TLine.h>
 
 // Plotting
 #include "cross_check_plotter.h"
+
+void sample(TH1D* hdata, TH1D* mc_histo, std::vector<std::pair<std::string, TH1D* >> bg_histos) {
+
+    // setTDRStyle();
+    std::cout << "test 1" << std::endl << std::endl;
+    const int nphistar_bins = 36;
+    double phistar_var1[nphistar_bins] = {0.001, 0.004, 0.008, 0.012, 0.016, 0.020, 0.024, 0.029, 0.034, 0.039, 0.045, 0.051, 0.057, 0.064, 0.072, 0.081, 0.091, 0.102, 0.114, 0.128, 0.145, 0.165, 0.189, 0.219, 0.258, 0.312, 0.391, 0.524, 0.695, 0.918, 1.153, 1.496, 1.947, 2.522, 3.277, 10.00};
+    //Stack Plot
+    TCanvas *c1 = new TCanvas("c1", "", 81, 80, 500, 581);
+    c1->Range(0, 0, 1, 1);
+    c1->SetFillColor(0);
+    c1->SetBorderMode(0);
+    c1->SetBorderSize(2);
+    c1->SetFrameBorderMode(0);
+
+    THStack *hs = new THStack("hs", "");
+
+
+    //DATA
+    hdata->SetStats(0);
+    //okay so now where it gets different though I think only through naming.
+    TH1D* totalMC;
+    TH1D* hdytautau;
+    TH1D* httbar;
+    TH1D* hsinglet;
+    TH1D* hsingletbar;
+    TH1D* hWZ;
+    TH1D* hWW;
+    TH1D* hZZ;
+    std::cout << "test 2" << std::endl << std::endl;
+    for (auto& i_pair : bg_histos) {
+
+        std::cout << "Okay here is the names " << i_pair.first << std::endl;
+        if (i_pair.first == "6 DY to #tau#tau") {
+            hdytautau = dynamic_cast<TH1D*> (i_pair.second->Clone()); //Dy to tautau
+            std::cout << "Got to TauTau" << std::endl;
+        }
+
+
+        if (i_pair.first == "3 Single TBar") {
+            httbar = dynamic_cast<TH1D*> (i_pair.second->Clone()); //ttbar
+            std::cout << "Got ttbar" << std::endl;
+        }
+
+        if (i_pair.first == "2 Single Top") {
+            hsinglet = dynamic_cast<TH1D*> (i_pair.second->Clone()); //Single Top
+            std::cout << "Got single t" << std::endl;
+        }
+
+        //std::cout << "and this the name " << i_pair.first << std::endl;
+        if (i_pair.first == "3 Single TBar") {
+            hsingletbar = dynamic_cast<TH1D*> (i_pair.second->Clone()); //single tbar
+            std::cout << "Got single tbar" << std::endl;
+        }
+
+        if (i_pair.first == "7 WZ") {
+            hWZ = dynamic_cast<TH1D*> (i_pair.second->Clone()); //WZ type
+            std::cout << "got WZ" << std::endl;
+        }
+
+        if (i_pair.first == "5 WW") {
+            hWW = dynamic_cast<TH1D*> (i_pair.second->Clone());
+            std::cout << "got WW" << std::endl;
+        }
+
+        if (i_pair.first == "8 ZZ") {
+            hZZ = dynamic_cast<TH1D*> (i_pair.second->Clone());
+            std::cout << "got ZZ" << std::endl;
+        }
+
+        //if(i_pair.first=="t#bar{t}")TH1F *hQCD = dynamic_cast<TH1D*> (i_pair.second->Clone());
+    }
+
+    if (!hdytautau) {
+        std::cout << "Missing double tau" << std::endl;
+        return;
+    }
+    if (!httbar) {
+        std::cout << "Missing double tt" << std::endl;
+        return;
+    }
+    if (!hsinglet) {
+        std::cout << "Missing single t" << std::endl;
+        return;
+    }
+
+    if (!hWZ) {
+        std::cout << "Missing wz" << std::endl;
+        return;
+    }
+    if (!hWW) {
+        std::cout << "Missing ww" << std::endl;
+        return;
+    }
+    if (!hsingletbar) {
+        std::cout << "Missing single tbar" << std::endl;
+        return;
+    }
+    std::cout << "test 3" << std::endl << std::endl;
+    hZZ->SetFillColor(11);
+    hZZ->SetFillStyle(1001);
+
+
+    totalMC = dynamic_cast<TH1D*> (hdytautau->Clone());
+    //totalMC->Add(hdytautau);
+    std::cout << "test 3.2" << std::endl;
+    totalMC->Add(httbar);
+    totalMC->Add(hsinglet);
+    totalMC->Add(hWZ);
+    totalMC->Add(hWW);
+    totalMC->Add(hsingletbar);
+    totalMC->Add(mc_histo);
+    //hTW->SetFillColor(30);
+    //hTW->SetFillStyle(1001);
+
+    hsingletbar->SetFillColor(42);
+    hsingletbar->SetFillStyle(1001);
+
+    httbar->SetFillColor(15);
+    httbar->SetFillStyle(1001);
+
+    hsinglet->SetFillColor(17);
+    hsinglet->SetFillStyle(1001);
+
+    mc_histo->SetFillColor(kRed - 7);
+    mc_histo->SetFillStyle(1001);
+
+    hWW->SetFillColor(44);
+    hWW->SetFillStyle(1001);
+
+    hWZ->SetFillColor(9);
+    hWZ->SetFillStyle(1001);
+
+    hdytautau->SetFillColor(798);
+    hdytautau->SetFillStyle(1001);
+    std::cout << "test 4" << std::endl << std::endl;
+    //hQCD->SetFillColor(3);
+    //hQCD->SetFillStyle(1001);
+
+    hZZ->SetLineColor(1);
+    hWW->SetLineColor(1);
+    hWZ->SetLineColor(1);
+    //hTW->SetLineColor(1);
+    hsingletbar->SetLineColor(1);
+    httbar->SetLineColor(1);
+    hsinglet->SetLineColor(1);
+    hdytautau->SetLineColor(1);
+    mc_histo->SetLineColor(1);
+    //hQCD->SetLineColor(1);
+
+    //hs->Add(hQCD, "hist");
+    hs->SetMaximum(1e8);
+    hs->Add(hsingletbar, "hist");
+    //hs->Add(hTW, "hist");
+    hs->Add(hdytautau, "hist");
+    hs->Add(hWW, "hist");
+    hs->Add(hsinglet, "hist");
+    hs->Add(httbar, "hist");
+    hs->Add(hWZ, "hist");
+    hs->Add(hZZ, "hist");
+    hs->Add(mc_histo, "hist");
+
+    for (unsigned int i = 1; i <= (unsigned int) hdata->GetNbinsX(); i++) {
+        double err_data1 = hdata->GetBinError(i);
+        hdata->SetBinError(i, err_data1);
+
+    }
+    std::cout << "test 5" << std::endl;
+    // setTDRStyle();
+    double leftMarg = 0.1807143;
+    TPad *pad1 = new TPad("pad1", "pad1", 0, 0.095, 1, 1);
+    pad1->Draw();
+    pad1->cd();
+    pad1->Range(-6.246851, -1575.816, 6.246851, 4673.11);
+    pad1->SetFillColor(0);
+    pad1->SetBorderMode(0);
+    pad1->SetBorderSize(2);
+    pad1->SetTopMargin(0.06304348);
+    pad1->SetLeftMargin(leftMarg);
+    //   pad1->SetBottomMargin(0.2521739);
+    std::cout << "test 6" << std::endl;
+    pad1->SetBottomMargin(0.18);
+    pad1->SetFrameBorderMode(0);
+    pad1->SetFrameBorderMode(0);
+    std::cout << "test 8" << std::endl;
+    pad1->cd();
+    //
+    const std::string LUMI_STRING = "19.7 fb^{-1} (8 TeV)";
+    TLatex* lumi_latex = new TLatex(.7, 0.95, LUMI_STRING.c_str());
+    lumi_latex->SetNDC(kTRUE); // Use pad coordinates, not Axis
+    lumi_latex->SetTextSize(0.035);
+
+    // Add CMS text inside the plot on the top left
+    const std::string CMS_STRING = "CMS Preliminary";
+    TLatex* cms_latex = new TLatex(0.23, .88, CMS_STRING.c_str());
+    cms_latex->SetNDC(kTRUE); // Use pad coordinates, not Axis
+    cms_latex->SetTextSize(0.035);
+
+
+
+    //
+    hs->Draw();
+    hdata->Draw("pe same");
+    hdata->Draw("AXIS same");
+    lumi_latex->Draw();
+    cms_latex->Draw();
+    //  hs->GetXaxis()->SetTitle("M_{ll}");
+    hs->GetXaxis()->SetRangeUser(0.1, 2.522);
+    hs->GetXaxis()->CenterTitle();
+    hs->GetXaxis()->SetLabelOffset(10);
+
+    hs->GetYaxis()->SetRangeUser(10, 10e9);
+    hs->GetYaxis()->SetTitle("Number of Events/Unit #phi^{*}");
+    hs->GetYaxis()->CenterTitle();
+    hdata->SetMarkerSize(0.7);
+    hdata->SetMarkerStyle(20);
+
+    TLegend* tl = new TLegend(0.75, 0.65, 0.9, 0.89);
+    tl->AddEntry(hdata, "Data", "lp");
+    tl->AddEntry(mc_histo, "DY to EE(POWHEG)", "f");
+    tl->AddEntry(hZZ, "ZZ", "f");
+    tl->AddEntry(hWZ, "WZ", "f");
+    tl->AddEntry(httbar, "TTBar", "f");
+    tl->AddEntry(hsinglet, "Single t", "f");
+    tl->AddEntry(hWW, "WW", "f");
+    tl->AddEntry(hdytautau, "DYToTauTau", "f");
+    //tl->AddEntry(hTW, "tW", "f");
+    tl->AddEntry(hsingletbar, "Single tbar", "f");
+    //tl->AddEntry(hQCD, "WJets", "f");
+    tl->SetFillColor(0);
+    tl->SetLineColor(0);
+    tl->Draw("same");
+    pad1->SetLogy();
+    pad1->SetLogx();
+
+    c1->cd();
+
+    if (hdata->GetNbinsX() != totalMC->GetNbinsX()) {
+        std::cout << " Data and mc bins do not match " << std::endl;
+        std::cout << " number of bins for Data " << hdata->GetNbinsX() << " and the number of bins for MC is" << totalMC->GetNbinsX() << std::endl;
+    }
+
+    // Ratio Plot
+    double data = 0.0;
+    double mc = 0.0;
+    double err_data = 0.0;
+    double err_mc = 0.0;
+    double ratio = 0.0;
+    double err_mc1 = 0.0;
+    TH1F* hPull = new TH1F("hPull", "", hsingletbar->GetNbinsX(), phistar_var1);
+    TLine* line = new TLine(0.004, 1., 2.522, 1.);
+
+    //TLine *linestart = new TLine(0.004, .8, 0.001, 1.2);
+    //TLine *lineend = new TLine(2.522, .8, 2.522, 1.2);
+    line->SetLineStyle(2);
+
+
+
+    for (unsigned int i = 1; i <= ((unsigned int) hdata->GetNbinsX()); i++) {
+        data = hdata->GetBinContent(i);
+        err_data = hdata->GetBinError(i);
+        mc = totalMC->GetBinContent(i);
+        err_mc = totalMC->GetBinError(i);
+
+        if (mc != 0 && data != 0) {
+
+            ratio = data / mc;
+            err_mc1 = ratio * (sqrt(pow((err_data / data), 2) + pow((err_mc / mc), 2)));
+            hPull->SetBinContent(i, ratio);
+            std::cout << " and the bin content is " << ratio << std::endl;
+            hPull->SetBinError(i, err_mc1);
+        }
+        // cout << "for bin = " << i  <<  " ratio is  = " << ratio << " and  error is  =  "  << err_mc1 << std::endl;}
+    }
+    //   pad2 = new TPad("pad2", "pad2",0,0.005681818,0.8991935,0.217803);
+    TPad *pad2 = new TPad("pad2", "pad2", 0, 0.007, 1, 0.25);
+    //TPad* pad2 = new TPad("pad2", "pad2", 0, 0.005681818, 0.8991935, 0.217803);
+    //TPad* pad2 = new TPad("pad2", "pad2",0,0.007,0.97,0.25);
+    pad2->Draw();
+    pad2->cd();
+    pad2->SetLogx();
+    //pad1->Range(-6.246851, -1575.816, 6.246851, 4673.11);
+    //pad2->Range(-6.133501, -0.02305455, 5.100756, 1.268);
+    pad2->Range(-6.133501, -0.02305455, 6.246851, 1.268);
+    pad2->SetFillColor(0);
+    pad2->SetBorderMode(0);
+    pad2->SetBorderSize(2);
+    pad2->SetTickx(1);
+    pad2->SetTicky(1);
+    //pad2->SetRightMargin(.00896861);
+    // pad2->SetTopMargin(0.1607143);
+    pad2->SetLeftMargin(leftMarg);
+    //pad2->SetTopMargin(0.1607143);
+    //   pad2->SetBottomMargin(0.01785714);
+    pad2->SetBottomMargin(0.28);
+    pad2->SetFrameBorderMode(0);
+    pad2->SetFrameBorderMode(0);
+
+    pad2->cd();
+    hPull->SetStats(0);
+    hPull->SetMarkerStyle(8);
+    hPull->SetMarkerSize(0.6);
+    hPull->SetTitle("");
+    pad2->SetTicky();
+    hPull->GetXaxis()->SetRangeUser(0.004, 2.522);
+    hPull->Draw("pe1");
+    line->Draw("same");
+    //linestart->Draw("same");
+    //lineend->Draw("same");
+    TAxis *xaxis = hPull->GetXaxis();
+    TAxis *yaxis = hPull->GetYaxis();
+    xaxis->SetTitle("                                                                           #phi^{*}");
+    xaxis->CenterTitle();
+    yaxis->SetNdivisions(5);
+            xaxis->SetLabelSize(2.5 * xaxis->GetLabelSize());
+    xaxis->SetTitleSize(0.15);
+    xaxis->SetTitleOffset(.55);
+
+
+
+    //  yaxis->SetRangeUser(0.8,1.2); 
+    yaxis->SetTitle("Data/MC");
+    yaxis->CenterTitle();
+    yaxis->SetLabelSize(2.5 * yaxis->GetLabelSize());
+    yaxis->SetTitleSize(2.5 * yaxis->GetTitleSize());
+    yaxis->SetTitleOffset(0.4 * yaxis->GetTitleOffset());
+
+
+    c1->SaveAs("POWHEGtest.pdf");
+    delete c1;
+}
 
 CrossCheckPlotter::CrossCheckPlotter(
         DataConfig data_config,
@@ -111,14 +443,14 @@ double CrossCheckPlotter::set_area_rescale_factor() {
     HistoStore histo_store = open_histos("z_mass_all", DO_RESCALING);
     TH1D* data_histo = histo_store.data_histo;
     TH1D* mc_histo = histo_store.mc_histo;
-    std::vector<std::pair<std::string, TH1D*>> bg_histos = histo_store.bg_histos;
+    std::vector < std::pair < std::string, TH1D* >> bg_histos = histo_store.bg_histos;
     // Check that open_histos exited successfully, otherwise end
     if (data_histo == nullptr || mc_histo == nullptr) {
         return -1;
     }
 
     // Copy the MC histogram and add all the bg histos
-    TH1D* tmp_histo = dynamic_cast<TH1D*>(mc_histo->Clone());
+    TH1D* tmp_histo = dynamic_cast<TH1D*> (mc_histo->Clone());
     for (auto& i_pair : bg_histos) {
         tmp_histo->Add(i_pair.second);
     }
@@ -137,7 +469,7 @@ double CrossCheckPlotter::set_area_rescale_factor() {
 
 std::vector<double> CrossCheckPlotter::get_rebinning(
         std::vector<double> desired_bins,
-        const TH1* const HISTO
+        const TH1 * const HISTO
         ) {
     /* Given a desired set of bin edges, and a histogram, finds the bin edges
      * in the histogram that most closely approximate the desired edges. This
@@ -170,10 +502,10 @@ std::vector<double> CrossCheckPlotter::get_rebinning(
         const double DESIRED_BIN = i;
         auto bounds = std::equal_range(old_bins.begin(), old_bins.end(), DESIRED_BIN);
         // Move the first pointer back if needed
-        if (       bounds.first == bounds.second
+        if (bounds.first == bounds.second
                 && bounds.first != old_bins.begin()
                 && *bounds.first != DESIRED_BIN
-           ) {
+                ) {
             --bounds.first;
         }
         // Check distance, pick the closest (or the first for a tie)
@@ -214,9 +546,9 @@ HistoStore CrossCheckPlotter::open_histos(
     if (!tmp_histo) {
         std::cout << "Can not open the Data Histogram!" << std::endl;
         std::cout << DATA_HISTO_NAME << std::endl;
-        return HistoStore(nullptr, nullptr, {});
+        return HistoStore(nullptr, nullptr,{});
     }
-    TH1D* data_histo = dynamic_cast<TH1D*>(tmp_histo->Clone());
+    TH1D* data_histo = dynamic_cast<TH1D*> (tmp_histo->Clone());
     // We always divide the bins by their width
     data_histo->Scale(1, "width");
 
@@ -225,15 +557,15 @@ HistoStore CrossCheckPlotter::open_histos(
     if (!tmp_histo) {
         std::cout << "Can not open the MC Histogram!" << std::endl;
         std::cout << MC_HISTO_NAME << std::endl;
-        return HistoStore(nullptr, nullptr, {});
+        return HistoStore(nullptr, nullptr,{});
     }
-    TH1D* mc_histo = dynamic_cast<TH1D*>(tmp_histo->Clone());
+    TH1D* mc_histo = dynamic_cast<TH1D*> (tmp_histo->Clone());
     mc_histo->Scale(1, "width");
     if (DO_RESCALE) {
         mc_histo->Scale(mc_config_.scale_factor);
     }
 
-    std::vector<std::pair<std::string, TH1D*>> bg_histos = {};
+    std::vector < std::pair < std::string, TH1D* >> bg_histos = {};
     if (bg_configs_.size() != 0) {
         // Open each BG and save to a vector with its name
         for (auto& i_pair : bg_configs_) {
@@ -244,11 +576,11 @@ HistoStore CrossCheckPlotter::open_histos(
                 std::cout << "Can not open the BG Histogram for ";
                 std::cout << i_pair.first;
                 std::cout << "!" << std::endl;
-                return HistoStore(nullptr, nullptr, {});
+                return HistoStore(nullptr, nullptr,{});
             }
             // Clone incase, for some unknown reason (perhaps testing) we want
             // to use the same histogram twice
-            TH1D* bg_clone = dynamic_cast<TH1D*>(bg_histo->Clone());
+            TH1D* bg_clone = dynamic_cast<TH1D*> (bg_histo->Clone());
             bg_clone->Scale(1, "width");
             if (DO_RESCALE) {
                 bg_clone->Scale(i_pair.second.scale_factor);
@@ -279,7 +611,7 @@ void CrossCheckPlotter::plot(
     HistoStore histo_store = open_histos(HISTO_NAME, DO_RESCALING);
     TH1D* data_histo = histo_store.data_histo;
     TH1D* mc_histo = histo_store.mc_histo;
-    std::vector<std::pair<std::string, TH1D*>> bg_histos = histo_store.bg_histos;
+    std::vector < std::pair < std::string, TH1D* >> bg_histos = histo_store.bg_histos;
     // Check that open_histos exited successfully, otherwise end
     if (data_histo == nullptr || mc_histo == nullptr) {
         return;
@@ -289,38 +621,38 @@ void CrossCheckPlotter::plot(
     // we want a simple rebinning (where N bins are combined to 1), otherwise
     // the vector is the edges of the bins.
     if (plot_config.binning.size() == 1) {
-        mc_histo->Rebin(static_cast<int>(plot_config.binning[0]));
-        data_histo->Rebin(static_cast<int>(plot_config.binning[0]));
+        mc_histo->Rebin(static_cast<int> (plot_config.binning[0]));
+        data_histo->Rebin(static_cast<int> (plot_config.binning[0]));
         for (auto& i_pair : bg_histos) {
-            i_pair.second->Rebin(static_cast<int>(plot_config.binning[0]));
+            i_pair.second->Rebin(static_cast<int> (plot_config.binning[0]));
         }
     } else if (plot_config.binning.size() > 1) {
         std::vector<double> new_binning = get_rebinning(
                 plot_config.binning,
                 data_histo
                 );
-        mc_histo = dynamic_cast<TH1D*>(
+        mc_histo = dynamic_cast<TH1D*> (
                 mc_histo->Rebin(
-                    new_binning.size() - 1,
-                    "mc_rebinned_histo",
-                    &new_binning[0]  // double*
-                    )
+                new_binning.size() - 1,
+                "mc_rebinned_histo",
+                &new_binning[0] // double*
+                )
                 );
-        data_histo = dynamic_cast<TH1D*>(
+        data_histo = dynamic_cast<TH1D*> (
                 data_histo->Rebin(
-                    new_binning.size() - 1,
-                    "data_rebinned_histo",
-                    &new_binning[0]  // double*
-                    )
+                new_binning.size() - 1,
+                "data_rebinned_histo",
+                &new_binning[0] // double*
+                )
                 );
         for (auto& i_pair : bg_histos) {
             std::string new_name = i_pair.first + "_rebinned_histo";
-            i_pair.second = dynamic_cast<TH1D*>(
+            i_pair.second = dynamic_cast<TH1D*> (
                     i_pair.second->Rebin(
-                        new_binning.size() - 1,
-                        new_name.c_str(),
-                        &new_binning[0]  // double*
-                        )
+                    new_binning.size() - 1,
+                    new_name.c_str(),
+                    &new_binning[0] // double*
+                    )
                     );
         }
     }
@@ -338,7 +670,7 @@ void CrossCheckPlotter::plot(
     for (auto& i_pair : bg_histos) {
         // Locate the DataConfig by name
         auto it = bg_configs_.find(i_pair.first);
-        if (it != bg_configs_.end()){
+        if (it != bg_configs_.end()) {
             if (area_rescale_factor_ > 0) {
                 // Normalize by area
                 i_pair.second->Scale(area_rescale_factor_);
@@ -364,10 +696,12 @@ void CrossCheckPlotter::plot(
 
     // Make a stack to store the MC and a ratio histogram for the ratio plot
     THStack* histo_stack = new THStack("hs", "Monte Carlo histrogram stack");
-    TH1D* ratio_histo = dynamic_cast<TH1D*>(data_histo->Clone());
+    TH1D* ratio_histo = dynamic_cast<TH1D*> (data_histo->Clone());
 
+
+    if (PLOT_TYPE == PHISTAR)sample(data_histo, mc_histo, bg_histos);
     // Title
-    data_histo->SetTitle(0);  // Remove the title, we'll place it by hand
+    data_histo->SetTitle(0); // Remove the title, we'll place it by hand
     // Axis labels
     ratio_histo->GetXaxis()->SetTitle(plot_config.x_label.c_str());
     ratio_histo->GetXaxis()->SetLabelSize(0.1);
@@ -376,10 +710,10 @@ void CrossCheckPlotter::plot(
     ratio_histo->GetYaxis()->SetTitle("Data/MC");
     ratio_histo->GetYaxis()->SetLabelSize(0.1);
     ratio_histo->GetYaxis()->SetTitleSize(0.1);
-    ratio_histo->GetYaxis()->SetNdivisions(7, 0, 0);  // Set 10 major ticks, 0 minor
-    ratio_histo->GetYaxis()->SetTickLength(0.01);  // Make the ticks smaller
-    data_histo->GetXaxis()->SetTitle(0);  // We use the ratio_histo to draw these
-    data_histo->GetXaxis()->SetLabelSize(0);  // Remove numbers
+    ratio_histo->GetYaxis()->SetNdivisions(7, 0, 0); // Set 10 major ticks, 0 minor
+    ratio_histo->GetYaxis()->SetTickLength(0.01); // Make the ticks smaller
+    data_histo->GetXaxis()->SetTitle(0); // We use the ratio_histo to draw these
+    data_histo->GetXaxis()->SetLabelSize(0); // Remove numbers
     data_histo->GetYaxis()->SetTitle(plot_config.y_label.c_str());
 
     // Set up the legend using the plot edges to set its location
@@ -387,15 +721,15 @@ void CrossCheckPlotter::plot(
     const double LEG_LENGTH = 0.20;
     TLegend legend(
             RIGHT_EDGE_ - LEG_LENGTH,
-            (TOP_EDGE_ - 0.025) - LEG_HEIGHT,  // 0.025 offset to avoid ticks
+            (TOP_EDGE_ - 0.025) - LEG_HEIGHT, // 0.025 offset to avoid ticks
             RIGHT_EDGE_,
-            TOP_EDGE_ - 0.025  // 0.025 offset to avoid the ticks
+            TOP_EDGE_ - 0.025 // 0.025 offset to avoid the ticks
             );
     legend.SetFillColor(kWhite);
     legend.AddEntry(data_histo, data_config_.name.c_str(), "p");
     legend.AddEntry(mc_histo, mc_config_.name.c_str(), "f");
-    legend.SetBorderSize(0);  // Remove drop shadow and border
-    legend.SetFillStyle(0);  // Transparent
+    legend.SetBorderSize(0); // Remove drop shadow and border
+    legend.SetFillStyle(0); // Transparent
 
     // Set up the styles of the histograms
     style_->cd();
@@ -435,7 +769,7 @@ void CrossCheckPlotter::plot(
     // top down, so we have to do a reverse loop for them to match.
     for (auto rit = bg_histos.rbegin(); rit != bg_histos.rend(); ++rit) {
         const std::string BG_NAME = bg_configs_[rit->first].name;
-        legend.AddEntry(rit->second, BG_NAME.c_str(),"f");
+        legend.AddEntry(rit->second, BG_NAME.c_str(), "f");
     }
     // Added last because we added the legend entry first
     histo_stack->Add(mc_histo);
@@ -453,7 +787,7 @@ void CrossCheckPlotter::plot(
         data_histo->SetMaximum(STACK_MAX * MAX_CONST);
     }
     // Set the minimum
-    double bg_min_max = -1;  // The smallest maximum
+    double bg_min_max = -1; // The smallest maximum
     for (auto& i_pair : bg_histos) {
         const double BG_MAX = i_pair.second->GetMaximum();
         if (BG_MAX < bg_min_max || bg_min_max < 0) {
@@ -485,22 +819,27 @@ void CrossCheckPlotter::plot(
     gPad->SetPad(0, RATIO_HEIGHT, 1., 1.);
     gPad->SetLogy(plot_config.logy);
     gPad->SetLogx(plot_config.logx);
-    gPad->SetBottomMargin(0.01);  // Remove the margin, we'll put it under the ratio
+    gPad->SetBottomMargin(0.01); // Remove the margin, we'll put it under the ratio
 
     // Add luminosity text outside the plot on the top right
+    //double RIGHT_EDGE_ = 0.96;
+    //double LEFT_EDGE_ = 0.10;
+    //double TOP_EDGE_ = 0.95;
+
+
     const std::string LUMI_STRING = "19.7 fb^{-1} (8 TeV)";
-    TLatex* lumi_latex = new TLatex(RIGHT_EDGE_ - 0.175, TOP_EDGE_ + 0.007,  LUMI_STRING.c_str());
-    lumi_latex->SetNDC(kTRUE);  // Use pad coordinates, not Axis
+    TLatex* lumi_latex = new TLatex(0.96 - 0.175, TOP_EDGE_ + 0.007, LUMI_STRING.c_str());
+    lumi_latex->SetNDC(kTRUE); // Use pad coordinates, not Axis
     lumi_latex->SetTextSize(0.035);
 
     // Add CMS text inside the plot on the top left
     const std::string CMS_STRING = "CMS Preliminary";
-    TLatex* cms_latex = new TLatex(LEFT_EDGE_ + 0.035, TOP_EDGE_ - 0.055,  CMS_STRING.c_str());
-    cms_latex->SetNDC(kTRUE);  // Use pad coordinates, not Axis
+    TLatex* cms_latex = new TLatex(LEFT_EDGE_ + 0.035, TOP_EDGE_ - 0.055, CMS_STRING.c_str());
+    cms_latex->SetNDC(kTRUE); // Use pad coordinates, not Axis
     cms_latex->SetTextSize(0.035);
 
     // Draw the histograms
-    data_histo->Draw("E");  // Set axis titles
+    data_histo->Draw("E"); // Set axis titles
     histo_stack->Draw("HIST SAME");
     data_histo->Draw("E SAME"); // Make point cover histogram
     legend.Draw();
@@ -513,10 +852,10 @@ void CrossCheckPlotter::plot(
     // Make the ratio plot
     canvas.cd(2);
     gPad->SetPad(0, 0.05, 1., RATIO_HEIGHT);
-    gPad->SetTopMargin(0);  // Move pad flush with plot above it
+    gPad->SetTopMargin(0); // Move pad flush with plot above it
     gPad->SetLogx(plot_config.logx);
     // Sum all the MC histos
-    TH1D* histo_sum = dynamic_cast<TH1D*>(mc_histo->Clone());
+    TH1D* histo_sum = dynamic_cast<TH1D*> (mc_histo->Clone());
     for (auto& i_pair : bg_histos) {
         histo_sum->Add(i_pair.second);
     }
@@ -530,7 +869,7 @@ void CrossCheckPlotter::plot(
     ratio_histo->SetMaximum(1. + RATIO_OFFSET_FROM_1);
     ratio_histo->SetMinimum(1. - RATIO_OFFSET_FROM_1);
 
-    ratio_histo->Draw("E");  // Draw first for Axis labels
+    ratio_histo->Draw("E"); // Draw first for Axis labels
     ratio_line.Draw("SAME");
     ratio_histo->Draw("E SAME");
 
@@ -556,20 +895,20 @@ void CrossCheckPlotter::plot(
 void CrossCheckPlotter::redraw_border() {
     // https://root.cern.ch/drupal/content/how-redraw-axis-and-plot-borders
     // this little macro redraws the axis tick marks and the pad border lines.
-   gPad->Update();
-   gPad->RedrawAxis();
-   //TLine l;
-   //l.DrawLine(gPad->GetUxmin(), gPad->GetUymax(), gPad->GetUxmax(), gPad->GetUymax());
-   //l.DrawLine(gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax());
+    gPad->Update();
+    gPad->RedrawAxis();
+    //TLine l;
+    //l.DrawLine(gPad->GetUxmin(), gPad->GetUymax(), gPad->GetUxmax(), gPad->GetUymax());
+    //l.DrawLine(gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax());
 }
 
 void CrossCheckPlotter::set_plot_style() {
-    style_ = new TStyle("style_","Style for P-TDR");
+    style_ = new TStyle("style_", "Style for P-TDR");
 
     // For the canvas:
     style_->SetCanvasBorderMode(0);
     style_->SetCanvasColor(kWhite);
-    style_->SetCanvasDefX(0);  //Position on screen
+    style_->SetCanvasDefX(0); //Position on screen
     style_->SetCanvasDefY(0);
 
     // For the Pad:
@@ -614,7 +953,7 @@ void CrossCheckPlotter::set_plot_style() {
 
     // For the statistics box:
     style_->SetOptFile(0);
-    style_->SetOptStat(0);  // To display the mean and RMS: SetOptStat("mr");
+    style_->SetOptStat(0); // To display the mean and RMS: SetOptStat("mr");
     style_->SetStatColor(kWhite);
     style_->SetStatFont(42);
     style_->SetStatFontSize(0.025);
@@ -635,7 +974,7 @@ void CrossCheckPlotter::set_plot_style() {
     style_->SetTitleFont(42);
     style_->SetTitleColor(kBlack);
     style_->SetTitleTextColor(kBlack);
-    style_->SetTitleFillColor(kWhite);  //10 is roughly kWhite, 10% grey?
+    style_->SetTitleFillColor(kWhite); //10 is roughly kWhite, 10% grey?
     style_->SetTitleFontSize(0.05);
 
     // For the axis titles:
@@ -656,7 +995,7 @@ void CrossCheckPlotter::set_plot_style() {
     style_->SetStripDecimals(true);
     style_->SetTickLength(0.03, "XYZ");
     style_->SetNdivisions(510, "XYZ");
-    style_->SetPadTickX(true);  // To get tick marks on the opposite side of the frame
+    style_->SetPadTickX(true); // To get tick marks on the opposite side of the frame
     style_->SetPadTickY(true);
 
     // Change for log plots:
@@ -674,13 +1013,13 @@ void CrossCheckPlotter::init_color_styles() {
      */
     color_styles_ = {
         {FORWARD_HATCH, kRed},
-        {BACKWARD_HATCH, kGreen+2},
-        {VERT_HATCH, kMagenta+2},
+        {BACKWARD_HATCH, kGreen + 2},
+        {VERT_HATCH, kMagenta + 2},
         {CROSS_HATCH, kOrange},
-        {BACKWARD_HATCH, kOrange+7},
+        {BACKWARD_HATCH, kOrange + 7},
         {VERT_HATCH, kRed},
-        {CROSS_HATCH, kGreen+2},
-        {FORWARD_HATCH, kMagenta+2},
+        {CROSS_HATCH, kGreen + 2},
+        {FORWARD_HATCH, kMagenta + 2},
     };
 }
 
@@ -692,521 +1031,488 @@ void CrossCheckPlotter::init_config_map() {
     // Z_MASS
     conf_map_.insert(
             config_pair(
-                Z_MASS_ALL,
-                PlotConfig(
-                    "m_{ee} [GeV]",  // x_label
-                    "Events / GeV",        // y_label
-                    "",              // title
-                    "z_mass_all",    // histogram name (for reading in)
-                    true,            // log Y axis
-                    false,           // log X axis
-                    {}               // Desired new binning
-                    // DY Group Binning
-                    //{15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 64, 68, 72, 76,
-                    //81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141,
-                    //150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510,
-                    //600, 1000, 1500, 2000 }               // Desired new binning
-                    )
-                )
-            );
+            Z_MASS_ALL,
+            PlotConfig(
+            "m_{ee} [GeV]", // x_label
+            "Events / GeV", // y_label
+            "", // title
+            "z_mass_all", // histogram name (for reading in)
+            true, // log Y axis
+            false, // log X axis
+    {} // Desired new binning
+    // DY Group Binning
+    //{15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 64, 68, 72, 76,
+    //81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141,
+    //150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510,
+    //600, 1000, 1500, 2000 }               // Desired new binning
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                Z_MASS_COARSE,
-                PlotConfig(
-                    "m_{ee} [GeV]",
-                    "Events / GeV",
-                    "",
-                    "z_mass_coarse",
-                    true,
-                    false,
-                    {}
-                    // DY Group Binning
-                    //{15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 64, 68, 72, 76,
-                    //81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141,
-                    //150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510,
-                    //600, 1000, 1500, 2000 }               // Desired new binning
-                    )
-                )
-            );
+            Z_MASS_COARSE,
+            PlotConfig(
+            "m_{ee} [GeV]",
+            "Events / GeV",
+            "",
+            "z_mass_coarse",
+            true,
+            false,{}
+    // DY Group Binning
+    //{15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 64, 68, 72, 76,
+    //81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141,
+    //150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510,
+    //600, 1000, 1500, 2000 }               // Desired new binning
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                Z_MASS_FINE,
-                PlotConfig(
-                    "m_{ee} [GeV]",
-                    "Events / GeV",
-                    "",
-                    "z_mass_fine",
-                    true,
-                    false,
-                    {}
-                    // DY Group Binning
-                    //{15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 64, 68, 72, 76,
-                    //81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141,
-                    //150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510,
-                    //600, 1000, 1500, 2000 }               // Desired new binning
-                    )
-                )
-            );
+            Z_MASS_FINE,
+            PlotConfig(
+            "m_{ee} [GeV]",
+            "Events / GeV",
+            "",
+            "z_mass_fine",
+            true,
+            false,{}
+    // DY Group Binning
+    //{15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 64, 68, 72, 76,
+    //81, 86, 91, 96, 101, 106, 110, 115, 120, 126, 133, 141,
+    //150, 160, 171, 185, 200, 220, 243, 273, 320, 380, 440, 510,
+    //600, 1000, 1500, 2000 }               // Desired new binning
+    )
+    )
+    );
     // Z Rapidity
     conf_map_.insert(
             config_pair(
-                Z_RAPIDITY,
-                PlotConfig(
-                    "Y_{Z}",
-                    "Events / Unit Y",
-                    "",
-                    "z_rapidity",
-                    true,
-                    false,
-                    {}
-                    )
-                )
-            );
+            Z_RAPIDITY,
+            PlotConfig(
+            "Y_{Z}",
+            "Events / Unit Y",
+            "",
+            "z_rapidity",
+            true,
+            false,{}
+    )
+    )
+    );
     // PT
     conf_map_.insert(
             config_pair(
-                Z_PT,
-                PlotConfig(
-                    "Z p_{T} [GeV]",
-                    "Events / GeV",
-                    "",
-                    "z_pt",
-                    true,
-                    false,
-                    {5}  // with one entry, just calls histo->Rebin(5);
-                    )
-                )
-            );
+            Z_PT,
+            PlotConfig(
+            "Z p_{T} [GeV]",
+            "Events / GeV",
+            "",
+            "z_pt",
+            true,
+            false,{5} // with one entry, just calls histo->Rebin(5);
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E0_PT,
-                PlotConfig(
-                    "e_{0} p_{T} [GeV]",
-                    "Events / GeV",
-                    "",
-                    "e0_pt",
-                    true,
-                    false,
-                    {5}
-                    )
-                )
-            );
+            E0_PT,
+            PlotConfig(
+            "e_{0} p_{T} [GeV]",
+            "Events / GeV",
+            "",
+            "e0_pt",
+            true,
+            false,{5}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_PT,
-                PlotConfig(
-                    "e_{1} p_{T} [GeV]",
-                    "Events / GeV",
-                    "",
-                    "e1_pt",
-                    true,
-                    false,
-                    {5}
-                    )
-                )
-            );
+            E1_PT,
+            PlotConfig(
+            "e_{1} p_{T} [GeV]",
+            "Events / GeV",
+            "",
+            "e1_pt",
+            true,
+            false,{5}
+    )
+    )
+    );
     // Eta
     conf_map_.insert(
             config_pair(
-                E0_ETA,
-                PlotConfig(
-                    "#eta_{e_{0}}",
-                    "Events / Unit #eta",
-                    "",
-                    "e0_eta",
-                    true,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E0_ETA,
+            PlotConfig(
+            "#eta_{e_{0}}",
+            "Events / Unit #eta",
+            "",
+            "e0_eta",
+            true,
+            false,{}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_ETA,
-                PlotConfig(
-                    "#eta_{e_{1}}",
-                    "Events / Unit #eta",
-                    "",
-                    "e1_eta",
-                    true,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E1_ETA,
+            PlotConfig(
+            "#eta_{e_{1}}",
+            "Events / Unit #eta",
+            "",
+            "e1_eta",
+            true,
+            false,{}
+    )
+    )
+    );
     // Phi
     conf_map_.insert(
             config_pair(
-                E0_PHI,
-                PlotConfig(
-                    "#phi_{e_{0}}",
-                    "Events / Unit #phi",
-                    "",
-                    "e0_phi",
-                    false,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E0_PHI,
+            PlotConfig(
+            "#phi_{e_{0}}",
+            "Events / Unit #phi",
+            "",
+            "e0_phi",
+            false,
+            false,{}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_PHI,
-                PlotConfig(
-                    "#phi_{e_{1}}",
-                    "Events / Unit #phi",
-                    "",
-                    "e1_phi",
-                    false,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E1_PHI,
+            PlotConfig(
+            "#phi_{e_{1}}",
+            "Events / Unit #phi",
+            "",
+            "e1_phi",
+            false,
+            false,{}
+    )
+    )
+    );
     // Charge
     conf_map_.insert(
             config_pair(
-                E0_CHARGE,
-                PlotConfig(
-                    "q_{e_{0}}",
-                    "Events",
-                    "",
-                    "e0_charge",
-                    false,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E0_CHARGE,
+            PlotConfig(
+            "q_{e_{0}}",
+            "Events",
+            "",
+            "e0_charge",
+            false,
+            false,{}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_CHARGE,
-                PlotConfig(
-                    "q_{e_{1}}",
-                    "Events",
-                    "",
-                    "e1_charge",
-                    false,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E1_CHARGE,
+            PlotConfig(
+            "q_{e_{1}}",
+            "Events",
+            "",
+            "e1_charge",
+            false,
+            false,{}
+    )
+    )
+    );
     // Phi*
     conf_map_.insert(
             config_pair(
-                PHISTAR,
-                PlotConfig(
-                    "#phi*",
-                    "Events / Unit #phi*",
-                    "",
-                    "phistar",
-                    true,
-                    true,
-                    // multiple entries means these are new bin edges
-                    //{0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 1.0}
-                    {0.004, 0.008, 0.012, 0.016, 0.020, 0.024, 0.029,
-                    0.034, 0.039, 0.045, 0.052, 0.057, 0.064, 0.072, 0.081,
-                    0.091, 0.102, 0.114, 0.128, 0.145, 0.165, 0.189, 0.219,
-                    0.258, 0.312, 0.391, 0.524, 0.695, 0.918, 1.153, 1.496,
-                    1.947, 2.522, 3.277}
-                    )
-                )
-            );
+            PHISTAR,
+            PlotConfig(
+            "#phi*",
+            "Events / Unit #phi*",
+            "",
+            "phistar",
+            true,
+            true,
+            // multiple entries means these are new bin edges
+            //{0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 1.0}
+    {0.004, 0.008, 0.012, 0.016, 0.020, 0.024, 0.029,
+        0.034, 0.039, 0.045, 0.052, 0.057, 0.064, 0.072, 0.081,
+        0.091, 0.102, 0.114, 0.128, 0.145, 0.165, 0.189, 0.219,
+        0.258, 0.312, 0.391, 0.524, 0.695, 0.918, 1.153, 1.496,
+        1.947, 2.522, 3.277}
+    )
+    )
+    );
     // Vertexes
     conf_map_.insert(
             config_pair(
-                N_VERTS,
-                PlotConfig(
-                    "Number of Vertexes",
-                    "Events",
-                    "",
-                    "n_verts",
-                    true,
-                    false,
-                    { 0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12.,
-                    13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.,
-                    25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.,
-                    37., 38., 39., 40., 41., 42., 43., 44., 45., 46., 47., 48.,
-                    49., 50.
-                    }
-                    )
-                )
-            );
+            N_VERTS,
+            PlotConfig(
+            "Number of Vertexes",
+            "Events",
+            "",
+            "n_verts",
+            true,
+            false,{0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12.,
+        13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.,
+        25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.,
+        37., 38., 39., 40., 41., 42., 43., 44., 45., 46., 47., 48.,
+        49., 50.}
+    )
+    )
+    );
     // Electrons
     conf_map_.insert(
             config_pair(
-                N_E,
-                PlotConfig(
-                    "Number of Electrons",
-                    "Events",
-                    "",
-                    "n_electrons",
-                    true,
-                    false,
-                    {}
-                    )
-                )
-            );
+            N_E,
+            PlotConfig(
+            "Number of Electrons",
+            "Events",
+            "",
+            "n_electrons",
+            true,
+            false,{}
+    )
+    )
+    );
     // Supercluster R9
     conf_map_.insert(
             config_pair(
-                E0_R9,
-                PlotConfig(
-                    "R9",
-                    "Events",
-                    "",
-                    "e0_r9",
-                    true,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E0_R9,
+            PlotConfig(
+            "R9",
+            "Events",
+            "",
+            "e0_r9",
+            true,
+            false,{}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_R9,
-                PlotConfig(
-                    "R9",
-                    "Events",
-                    "",
-                    "e1_r9",
-                    true,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E1_R9,
+            PlotConfig(
+            "R9",
+            "Events",
+            "",
+            "e1_r9",
+            true,
+            false,{}
+    )
+    )
+    );
     // Supercluster sigma ieta sigma ieta
     conf_map_.insert(
             config_pair(
-                E0_SIGMAIETA,
-                PlotConfig(
-                    "#sigma_{i #eta i #eta}^{e_{0}}",
-                    "Events",
-                    "",
-                    "e0_siesie",
-                    true,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E0_SIGMAIETA,
+            PlotConfig(
+            "#sigma_{i #eta i #eta}^{e_{0}}",
+            "Events",
+            "",
+            "e0_siesie",
+            true,
+            false,{}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_SIGMAIETA,
-                PlotConfig(
-                    "#sigma_{i #eta i #eta}^{e_{1}}",
-                    "Events",
-                    "",
-                    "e1_siesie",
-                    true,
-                    false,
-                    {}
-                    )
-                )
-            );
+            E1_SIGMAIETA,
+            PlotConfig(
+            "#sigma_{i #eta i #eta}^{e_{1}}",
+            "Events",
+            "",
+            "e1_siesie",
+            true,
+            false,{}
+    )
+    )
+    );
     // Supercluster H/E
     conf_map_.insert(
             config_pair(
-                E0_HE,
-                PlotConfig(
-                    "H/E",
-                    "Events",
-                    "",
-                    "e0_he",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E0_HE,
+            PlotConfig(
+            "H/E",
+            "Events",
+            "",
+            "e0_he",
+            true,
+            false,{10}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_HE,
-                PlotConfig(
-                    "H/E",
-                    "Events",
-                    "",
-                    "e1_he",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E1_HE,
+            PlotConfig(
+            "H/E",
+            "Events",
+            "",
+            "e1_he",
+            true,
+            false,{10}
+    )
+    )
+    );
     // Supercluster dEta
     conf_map_.insert(
             config_pair(
-                E0_DETA,
-                PlotConfig(
-                    "d#eta",
-                    "Events",
-                    "",
-                    "e0_deta",
-                    true,
-                    false,
-                    {5}
-                    )
-                )
-            );
+            E0_DETA,
+            PlotConfig(
+            "d#eta",
+            "Events",
+            "",
+            "e0_deta",
+            true,
+            false,{5}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_DETA,
-                PlotConfig(
-                    "d#eta",
-                    "Events",
-                    "",
-                    "e1_deta",
-                    true,
-                    false,
-                    {5}
-                    )
-                )
-            );
+            E1_DETA,
+            PlotConfig(
+            "d#eta",
+            "Events",
+            "",
+            "e1_deta",
+            true,
+            false,{5}
+    )
+    )
+    );
     // Supercluster dPhi
     conf_map_.insert(
             config_pair(
-                E0_DPHI,
-                PlotConfig(
-                    "d#phi",
-                    "Events",
-                    "",
-                    "e0_dphi",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E0_DPHI,
+            PlotConfig(
+            "d#phi",
+            "Events",
+            "",
+            "e0_dphi",
+            true,
+            false,{10}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_DPHI,
-                PlotConfig(
-                    "d#phi",
-                    "Events",
-                    "",
-                    "e1_dphi",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E1_DPHI,
+            PlotConfig(
+            "d#phi",
+            "Events",
+            "",
+            "e1_dphi",
+            true,
+            false,{10}
+    )
+    )
+    );
     // Supercluster Track ISO
     conf_map_.insert(
             config_pair(
-                E0_TRACKISO,
-                PlotConfig(
-                    "Track ISO",
-                    "Events",
-                    "",
-                    "e0_track_iso",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E0_TRACKISO,
+            PlotConfig(
+            "Track ISO",
+            "Events",
+            "",
+            "e0_track_iso",
+            true,
+            false,{10}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_TRACKISO,
-                PlotConfig(
-                    "Track ISO",
-                    "Events",
-                    "",
-                    "e1_track_iso",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E1_TRACKISO,
+            PlotConfig(
+            "Track ISO",
+            "Events",
+            "",
+            "e1_track_iso",
+            true,
+            false,{10}
+    )
+    )
+    );
     // Supercluster ECAL ISO
     conf_map_.insert(
             config_pair(
-                E0_ECALISO,
-                PlotConfig(
-                    "ECAL ISO",
-                    "Events",
-                    "",
-                    "e0_ecal_iso",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E0_ECALISO,
+            PlotConfig(
+            "ECAL ISO",
+            "Events",
+            "",
+            "e0_ecal_iso",
+            true,
+            false,{10}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_ECALISO,
-                PlotConfig(
-                    "ECAL ISO",
-                    "Events",
-                    "",
-                    "e1_ecal_iso",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E1_ECALISO,
+            PlotConfig(
+            "ECAL ISO",
+            "Events",
+            "",
+            "e1_ecal_iso",
+            true,
+            false,{10}
+    )
+    )
+    );
     // Supercluster HCAL ISO
     conf_map_.insert(
             config_pair(
-                E0_HCALISO,
-                PlotConfig(
-                    "HCAL ISO",
-                    "Events",
-                    "",
-                    "e0_hcal_iso",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E0_HCALISO,
+            PlotConfig(
+            "HCAL ISO",
+            "Events",
+            "",
+            "e0_hcal_iso",
+            true,
+            false,{10}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_HCALISO,
-                PlotConfig(
-                    "HCAL ISO",
-                    "Events",
-                    "",
-                    "e1_hcal_iso",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E1_HCALISO,
+            PlotConfig(
+            "HCAL ISO",
+            "Events",
+            "",
+            "e1_hcal_iso",
+            true,
+            false,{10}
+    )
+    )
+    );
     // Supercluster 1/E - 1/P
     conf_map_.insert(
             config_pair(
-                E0_1OEM1OP,
-                PlotConfig(
-                    "1/E - 1/P",
-                    "Events",
-                    "",
-                    "e0_1oe_1op",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E0_1OEM1OP,
+            PlotConfig(
+            "1/E - 1/P",
+            "Events",
+            "",
+            "e0_1oe_1op",
+            true,
+            false,{10}
+    )
+    )
+    );
     conf_map_.insert(
             config_pair(
-                E1_1OEM1OP,
-                PlotConfig(
-                    "1/E - 1/P",
-                    "Events",
-                    "",
-                    "e1_1oe_1op",
-                    true,
-                    false,
-                    {10}
-                    )
-                )
-            );
+            E1_1OEM1OP,
+            PlotConfig(
+            "1/E - 1/P",
+            "Events",
+            "",
+            "e1_1oe_1op",
+            true,
+            false,{10}
+    )
+    )
+    );
 }
