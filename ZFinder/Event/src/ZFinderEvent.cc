@@ -95,10 +95,10 @@ namespace zf {
 
         // Set up the lumi reweighting, but only if it is MC.
         if (!is_real_data
-            && lumi_weights_ == nullptr
-            && lumi_weights_plus_ == nullptr
-            && lumi_weights_minus_ == nullptr
-        ) {
+                && lumi_weights_ == nullptr
+                && lumi_weights_plus_ == nullptr
+                && lumi_weights_minus_ == nullptr
+                ) {
             const std::string PILEUP_ERA = iConfig.getParameter<std::string>("pileup_era");
             // We use a flag in the python file to set the pileup reweighting
             // to use. If a blank, or an unrecognized, string is passed, then
@@ -112,29 +112,25 @@ namespace zf {
                 pileup_distribution_in_data = RUN_2012_A_TRUE_PILEUP;
                 pileup_distribution_in_data_plus = RUN_2012_A_TRUE_PILEUP_PLUS;
                 pileup_distribution_in_data_minus = RUN_2012_A_TRUE_PILEUP_MINUS;
-            }
-            else if (PILEUP_ERA == "B") {
+            } else if (PILEUP_ERA == "B") {
                 pileup_distribution_in_data = RUN_2012_B_TRUE_PILEUP;
                 pileup_distribution_in_data_plus = RUN_2012_B_TRUE_PILEUP_PLUS;
                 pileup_distribution_in_data_minus = RUN_2012_B_TRUE_PILEUP_MINUS;
-            }
-            else if (PILEUP_ERA == "C") {
+            } else if (PILEUP_ERA == "C") {
                 pileup_distribution_in_data = RUN_2012_C_TRUE_PILEUP;
                 pileup_distribution_in_data_plus = RUN_2012_C_TRUE_PILEUP_PLUS;
                 pileup_distribution_in_data_minus = RUN_2012_C_TRUE_PILEUP_MINUS;
-            }
-            else if (PILEUP_ERA == "D") {
+            } else if (PILEUP_ERA == "D") {
                 pileup_distribution_in_data = RUN_2012_D_TRUE_PILEUP;
                 pileup_distribution_in_data_plus = RUN_2012_D_TRUE_PILEUP_PLUS;
                 pileup_distribution_in_data_minus = RUN_2012_D_TRUE_PILEUP_MINUS;
-            }
-            else {
+            } else {
                 std::cout << "Using RUN_2012_ABCD_TRUE_PILEUP" << std::endl;
             }
 
             lumi_weights_ = new edm::LumiReWeighting(
-                    SUMMER12_53X_MC_TRUE_PILEUP,  // MC distribution
-                    pileup_distribution_in_data   // Data distribution
+                    SUMMER12_53X_MC_TRUE_PILEUP, // MC distribution
+                    pileup_distribution_in_data // Data distribution
                     );
             lumi_weights_plus_ = new edm::LumiReWeighting(
                     SUMMER12_53X_MC_TRUE_PILEUP,
@@ -151,31 +147,31 @@ namespace zf {
         if (!is_real_data) {
             SetMCEventWeight(iEvent);
             if (lumi_weights_ != nullptr
-                && lumi_weights_plus_ != nullptr
-                && lumi_weights_minus_ != nullptr
-            ) {
+                    && lumi_weights_plus_ != nullptr
+                    && lumi_weights_minus_ != nullptr
+                    ) {
                 SetLumiEventWeight(iEvent);
             }
         }
 
         // Finish initialization of electrons
-        InitReco(iEvent, iSetup);  // Data
+        InitReco(iEvent, iSetup); // Data
 
         // Set up the MC, including saving some of the truth quantites to the
         // reco quantities in MC
         if (!is_real_data) {
-            InitTruth(iEvent, iSetup);  // MC
+            InitTruth(iEvent, iSetup); // MC
             // In MC we want to store the value of the Truth phistar and Y with
             // the reco events, and vice versa, so that they may be used for
             // unfolding. We also store the MC naked phistar and born phistar
             // in the reco.
-            if (truth_z.m != -1) {  // Good truth Z
+            if (truth_z.m != -1) { // Good truth Z
                 reco_z.other_phistar = truth_z.phistar;
                 reco_z.other_y = truth_z.y;
                 reco_z.bornPhistar = truth_z.bornPhistar;
                 reco_z.nakedPhistar = truth_z.nakedPhistar;
             }
-            if (reco_z.m != -1) {  // Good reco Z
+            if (reco_z.m != -1) { // Good reco Z
                 truth_z.other_phistar = reco_z.phistar;
                 truth_z.other_y = reco_z.y;
             }
@@ -190,7 +186,7 @@ namespace zf {
                 return;
             }
         }
-        InitTrigger(iEvent, iSetup);  // Trigger Matching
+        InitTrigger(iEvent, iSetup); // Trigger Matching
     }
 
     void ZFinderEvent::SetLumiEventWeight(const edm::Event& iEvent) {
@@ -204,7 +200,7 @@ namespace zf {
         // Must be a float because weight() below takes float or int
         float true_number_of_pileup = -1.;
         std::vector<PileupSummaryInfo>::const_iterator PILEUP_ELEMENT;
-        for(PILEUP_ELEMENT = pileup_info->begin(); PILEUP_ELEMENT != pileup_info->end(); ++PILEUP_ELEMENT) {
+        for (PILEUP_ELEMENT = pileup_info->begin(); PILEUP_ELEMENT != pileup_info->end(); ++PILEUP_ELEMENT) {
             const int BUNCH_CROSSING = PILEUP_ELEMENT->getBunchCrossing();
             if (BUNCH_CROSSING == 0) {
                 true_number_of_pileup = PILEUP_ELEMENT->getTrueNumInteractions();
@@ -235,19 +231,18 @@ namespace zf {
             iEvent.getByLabel(pdfWeightTag_cteq, weightHandle_cteq);
             weights_cteq = (*weightHandle_cteq);
 
- 	    weights_mstw = {0};
+            weights_mstw = {0};
             weights_nnpdf = {0};
-  /*          edm::InputTag pdfWeightTag_mstw("pdfWeights:MSTW2008nlo68cl"); // or any other PDF set
-            edm::Handle<std::vector<double> > weightHandle_mstw;
-            iEvent.getByLabel(pdfWeightTag_mstw, weightHandle_mstw);
-            weights_mstw = (*weightHandle_mstw);
+            /*          edm::InputTag pdfWeightTag_mstw("pdfWeights:MSTW2008nlo68cl"); // or any other PDF set
+                      edm::Handle<std::vector<double> > weightHandle_mstw;
+                      iEvent.getByLabel(pdfWeightTag_mstw, weightHandle_mstw);
+                      weights_mstw = (*weightHandle_mstw);
 
-            edm::InputTag pdfWeightTag_nnpdf("pdfWeights:NNPDF23"); // or any other PDF set
-            edm::Handle<std::vector<double> > weightHandle_nnpdf;
-            iEvent.getByLabel(pdfWeightTag_nnpdf, weightHandle_nnpdf);
-            weights_nnpdf = (*weightHandle_nnpdf);*/
-        }
-        else {
+                      edm::InputTag pdfWeightTag_nnpdf("pdfWeights:NNPDF23"); // or any other PDF set
+                      edm::Handle<std::vector<double> > weightHandle_nnpdf;
+                      iEvent.getByLabel(pdfWeightTag_nnpdf, weightHandle_nnpdf);
+                      weights_nnpdf = (*weightHandle_nnpdf);*/
+        } else {
             weights_cteq = {0};
             weights_mstw = {0};
             weights_nnpdf = {0};
@@ -258,8 +253,7 @@ namespace zf {
             edm::Handle<double> weightHandle_fsr;
             iEvent.getByLabel("fsrWeight", weightHandle_fsr);
             weight_fsr = (*weightHandle_fsr);
-        }
-        else {
+        } else {
             weight_fsr = 0.;
         }
     }
@@ -270,13 +264,13 @@ namespace zf {
         iEvent.getByLabel(inputtags_.vertex, reco_vertices);
         reco_vert.num = 0;
         bool first_vertex = true;
-        for(unsigned int vertex=0; vertex < reco_vertices->size(); ++vertex) {
-            if (    // Criteria copied from twiki
+        for (unsigned int vertex = 0; vertex < reco_vertices->size(); ++vertex) {
+            if (// Criteria copied from twiki
                     !((*reco_vertices)[vertex].isFake())
                     && ((*reco_vertices)[vertex].ndof() > 4)
                     && (fabs((*reco_vertices)[vertex].z()) <= 24.0)
                     && ((*reco_vertices)[vertex].position().Rho() <= 2.0)
-               ) {
+                    ) {
                 reco_vert.num++;
                 // Store first good vertex as "primary"
                 if (first_vertex) {
@@ -312,8 +306,7 @@ namespace zf {
         n_reco_electrons = reco_electrons_.size();
         if (n_reco_electrons == 1) {
             set_e0(reco_electrons_[0]);
-        }
-        else if (n_reco_electrons >= 2) {
+        } else if (n_reco_electrons >= 2) {
             set_both_e(reco_electrons_[0], reco_electrons_[1]);
             // We can only apply the NT Bending correction if we already have
             // both electrons, since we need the sign of the tracked one to
@@ -361,16 +354,15 @@ namespace zf {
         const double RHO_ISO = *(rho_iso_h.product());
 
         // loop on electrons
-        for(unsigned int i = 0; i < els_h->size(); ++i) {
+        for (unsigned int i = 0; i < els_h->size(); ++i) {
             // Get the electron and set put it into the electrons vector
             reco::GsfElectron electron = els_h->at(i);
             // We enforce a minimum quality cut
-           
+
             if (use_muon_acceptance_ && fabs(electron.eta()) > extended_maximum_eta_) {
                 continue;
             }
             ZFinderElectron* zf_electron = AddRecoElectron(electron);
-
             // get reference to electron and the electron
             reco::GsfElectronRef ele_ref(els_h, i);
 
@@ -435,11 +427,11 @@ namespace zf {
         iEvent.getByLabel(inputtags_.hf_clusters, scas_h);
 
         // Loop over electrons
-        for(unsigned int i = 0; i < els_h->size(); ++i) {
+        for (unsigned int i = 0; i < els_h->size(); ++i) {
             // Get the electron and set put it into the electrons vector
             reco::RecoEcalCandidate electron = els_h->at(i);
             // We enforce a minimum quality cut
-          
+
             ZFinderElectron* zf_electron = AddRecoElectron(electron);
 
             reco::SuperClusterRef cluster_ref = electron.superCluster();
@@ -488,10 +480,10 @@ namespace zf {
         iEvent.getByLabel(inputtags_.nt_electron, els_h);
 
         // Loop over all electrons
-        for(unsigned int i = 0; i < els_h->size(); ++i) {
+        for (unsigned int i = 0; i < els_h->size(); ++i) {
             reco::Photon electron = els_h->at(i);
             // We enforce a minimum quality cut
-            
+
             // Because the photon collect is NOT filtered for electrons, we
             // reject photons that are too close to GSF electrons, and only
             // accept photons within 2.5 < |eta| < 2.850.
@@ -499,37 +491,35 @@ namespace zf {
             if (2.5 < fabs(electron.eta()) && fabs(electron.eta()) < 2.850) {
                 ZFinderElectron* zf_electron;
                 // Now check for nearby GSF electrons
-                for(auto& i_elec : reco_electrons_) {
-                    if(i_elec->CutPassed("type_gsf") == 1) {
+                for (auto& i_elec : reco_electrons_) {
+                    if (i_elec->CutPassed("type_gsf") == 1) {
                         const double DR = deltaR(i_elec->eta(), i_elec->phi(), electron.eta(), electron.phi());
-                        if(DR <= NT_DR_) {
+                        if (DR <= NT_DR_) {
                             is_unmatched = false;
                             break;
                         }
                     }
                 }
-                if(is_unmatched) {
+                if (is_unmatched) {
                     zf_electron = AddRecoElectron(electron);
-                }
-                else {
-                    continue;  // Check the next photon
+                } else {
+                    continue; // Check the next photon
                 }
 
                 // Apply Alexey's Cuts
                 //const double PHOTON_ET = electron.superCluster()->rawEnergy() * sin(electron.superCluster()->theta());
-                if (       0.89 < electron.r9() && electron.r9() < 1.02
+                if (0.89 < electron.r9() && electron.r9() < 1.02
                         && electron.hadronicOverEm() < 0.05
                         && fabs(electron.superCluster()->eta()) > 2.5
                         //&& PHOTON_ET > 20.
                         && electron.sigmaIetaIeta() < 0.029
                         && (electron.ecalRecHitSumEtConeDR03() / electron.pt()) < 0.035
                         && (electron.hcalTowerSumEtConeDR03() / electron.pt()) < 0.11
-                   ) {
+                        ) {
                     const bool PASSED = true;
                     const double WEIGHT = 1.;
                     zf_electron->AddCutResult("nt_loose", PASSED, WEIGHT);
-                }
-                else {
+                } else {
                     zf_electron->AddCutResult("nt_loose", false, 1.);
                 }
                 //diagnostic printout:
@@ -550,11 +540,11 @@ namespace zf {
                 // Both electrons have already passed the looser pt and eta
                 // requirement, so now they just need to pass the tighter one
                 if (
-                    !(
-                        (FETA0 < central_maximum_eta_ )
-                        || (FETA1 < central_maximum_eta_ )
-                    )
-                ) {
+                        !(
+                        (FETA0 < central_maximum_eta_)
+                        || (FETA1 < central_maximum_eta_)
+                        )
+                        ) {
                     return;
                 }
             }
@@ -668,8 +658,7 @@ namespace zf {
                     truth_vert.num = PILEUP_ELEMENT->getPU_NumInteractions() + 1;
                 }
             }
-        }
-        else {
+        } else {
             truth_vert.num = -1;
         }
 
@@ -710,31 +699,26 @@ namespace zf {
                         }
                         // Assign the first daughter to our electron pointer
                         if (bornElectron_0 == nullptr) {
-                            bornElectron_0 = dynamic_cast<const reco::GenParticle*>(gen_particle->daughter(j));
+                            bornElectron_0 = dynamic_cast<const reco::GenParticle*> (gen_particle->daughter(j));
                             nakedElectron_0 = GetNakedElectron(bornElectron_0);
                             // Use the right gen electron based on gen_electron_type_
                             if (gen_electron_type_ == "Naked" || gen_electron_type_ == "Bare") {
                                 electron_0 = nakedElectron_0;
-                            }
-                            else if (gen_electron_type_ == "Born") {
+                            } else if (gen_electron_type_ == "Born") {
                                 electron_0 = bornElectron_0;
-                            }
-                            else if (bornElectron_0 && nakedElectron_0) {
+                            } else if (bornElectron_0 && nakedElectron_0) {
                                 electron_0 = GetDressedElectron(bornElectron_0, nakedElectron_0);
                             }
-                        }
-                        // Assign the second and break, because we already have two electrons
+                        }                            // Assign the second and break, because we already have two electrons
                         else if (bornElectron_1 == nullptr) {
-                            bornElectron_1 = dynamic_cast<const reco::GenParticle*>(gen_particle->daughter(j));
+                            bornElectron_1 = dynamic_cast<const reco::GenParticle*> (gen_particle->daughter(j));
                             nakedElectron_1 = GetNakedElectron(bornElectron_1);
                             // Use the right gen electron based on gen_electron_type_
                             if (gen_electron_type_ == "Naked" || gen_electron_type_ == "Bare") {
                                 electron_1 = nakedElectron_1;
-                            }
-                            else if (gen_electron_type_ == "Born") {
+                            } else if (gen_electron_type_ == "Born") {
                                 electron_1 = bornElectron_1;
-                            }
-                            else if (bornElectron_1 && nakedElectron_1) {
+                            } else if (bornElectron_1 && nakedElectron_1) {
                                 electron_1 = GetDressedElectron(bornElectron_1, nakedElectron_1);
                             }
                             break;
@@ -819,10 +803,11 @@ namespace zf {
         return zf_electron;
     }
     //the trifecto version:
+
     ZFinderElectron* ZFinderEvent::AddTruthElectron(reco::GenParticle bornElectron,
-                                                    reco::GenParticle dressedElectron,
-                                                    reco::GenParticle nakedElectron) {
-        ZFinderElectron* zf_electron = new ZFinderElectron(bornElectron,dressedElectron,nakedElectron);
+            reco::GenParticle dressedElectron,
+            reco::GenParticle nakedElectron) {
+        ZFinderElectron* zf_electron = new ZFinderElectron(bornElectron, dressedElectron, nakedElectron);
         truth_electrons_.push_back(zf_electron);
         return zf_electron;
     }
@@ -848,7 +833,7 @@ namespace zf {
             for (size_t i = 0; i < naked_electron->numberOfDaughters(); ++i) {
                 const reco::Candidate* test_particle = naked_electron->daughter(i);
                 if (fabs(test_particle->pdgId()) == PDGID::ELECTRON) {
-                    naked_electron = dynamic_cast<const reco::GenParticle*>(test_particle);
+                    naked_electron = dynamic_cast<const reco::GenParticle*> (test_particle);
                     break;
                 }
             }
@@ -888,10 +873,9 @@ namespace zf {
                 const reco::Candidate* test_particle = tmp_electron->daughter(i);
                 // If we find electron, we save it as the next item to recurse over
                 if (fabs(test_particle->pdgId()) == PDGID::ELECTRON) {
-                    swap_electron = dynamic_cast<const reco::GenParticle*>(test_particle);
-                }
-                // If we find a photon, add its 4 vector if it is within some
-                // distance of the naked electron
+                    swap_electron = dynamic_cast<const reco::GenParticle*> (test_particle);
+                }                    // If we find a photon, add its 4 vector if it is within some
+                    // distance of the naked electron
                 else if (fabs(test_particle->pdgId()) == PDGID::PHOTON) {
                     const double DELTA_R = deltaR(test_particle->eta(), test_particle->phi(), NAKED_ELECTRON->eta(), NAKED_ELECTRON->phi());
                     if (DELTA_R < MAX_DELTA_R) {
@@ -919,7 +903,7 @@ namespace zf {
                 NAKED_ELECTRON->pdgId(),
                 NAKED_ELECTRON->status(),
                 1
-            );
+                );
 
         return dressed_e;
     }
@@ -930,22 +914,22 @@ namespace zf {
         double dphi = phi0 - phi1;
 
         // Properly account for the fact that 2pi == 0.
-        if (dphi < 0){
-            if (dphi > -PI){
+        if (dphi < 0) {
+            if (dphi > -PI) {
                 dphi = fabs(dphi);
             }
             if (dphi < -PI) {
-                dphi += 2*PI;
+                dphi += 2 * PI;
             }
         }
-        if (dphi > PI){
-            dphi = 2*PI - dphi;
+        if (dphi > PI) {
+            dphi = 2 * PI - dphi;
         }
 
         const double DETA = fabs(eta0 - eta1);
 
         /* PhiStar */
-        return ( 1 / cosh( DETA / 2 ) ) * (1 / tan( dphi / 2 ) );
+        return ( 1 / cosh(DETA / 2)) * (1 / tan(dphi / 2));
     }
 
     void ZFinderEvent::PrintCuts(ZFinderElectron* zf_elec) {
@@ -977,7 +961,9 @@ namespace zf {
                 cout << "\tpt: " << i_elec->pt();
                 cout << " eta: " << i_elec->eta();
                 cout << " phi: " << i_elec->phi() << endl;
-                if (PRINT_CUTS) { PrintCuts(i_elec); }
+                if (PRINT_CUTS) {
+                    PrintCuts(i_elec);
+                }
             }
         } else if (TYPE == TRUTH && !is_real_data) {
             if (e0_truth != nullptr && e1_truth != nullptr) {
@@ -985,11 +971,15 @@ namespace zf {
                 cout << "\tpt: " << e0_truth->pt();
                 cout << " eta: " << e0_truth->eta();
                 cout << " phi: " << e0_truth->phi() << endl;
-                if (PRINT_CUTS) { PrintCuts(e0_truth); }
+                if (PRINT_CUTS) {
+                    PrintCuts(e0_truth);
+                }
                 cout << "\tpt: " << e1_truth->pt();
                 cout << " eta: " << e1_truth->eta();
                 cout << " phi: " << e1_truth->phi() << endl;
-                if (PRINT_CUTS) { PrintCuts(e1_truth); }
+                if (PRINT_CUTS) {
+                    PrintCuts(e1_truth);
+                }
             }
         } else if (TYPE == TRIG) {
             if (e0_trig != nullptr || e1_trig != nullptr) {
@@ -999,13 +989,17 @@ namespace zf {
                 cout << "\tpt: " << e0_trig->pt();
                 cout << " eta: " << e0_trig->eta();
                 cout << " phi: " << e0_trig->phi() << endl;
-                if (PRINT_CUTS) { PrintCuts(e0_trig); }
+                if (PRINT_CUTS) {
+                    PrintCuts(e0_trig);
+                }
             }
             if (e1_trig != nullptr) {
                 cout << "\tpt: " << e1_trig->pt();
                 cout << " eta: " << e1_trig->eta();
                 cout << " phi: " << e1_trig->phi() << endl;
-                if (PRINT_CUTS) { PrintCuts(e1_trig); }
+                if (PRINT_CUTS) {
+                    PrintCuts(e1_trig);
+                }
             }
         }
     }
@@ -1102,11 +1096,11 @@ namespace zf {
         }
 
         // Load Trigger Objects
-        edm::InputTag hltTrigInfoTag("hltTriggerSummaryAOD","","HLT");
+        edm::InputTag hltTrigInfoTag("hltTriggerSummaryAOD", "", "HLT");
         edm::Handle<trigger::TriggerEvent> trig_event;
 
         iEvent.getByLabel(hltTrigInfoTag, trig_event);
-        if (!trig_event.isValid() ){
+        if (!trig_event.isValid()) {
             std::cout << "No valid hltTriggerSummaryAOD." << std::endl;
             return nullptr;
         }
@@ -1118,9 +1112,9 @@ namespace zf {
             // Grab objects that pass our filter
             edm::InputTag filter_tag(trig_name, "", "HLT");
             trigger::size_type filter_index = trig_event->filterIndex(filter_tag);
-            if(filter_index < trig_event->sizeFilters()) { // Check that the filter is in triggerEvent
+            if (filter_index < trig_event->sizeFilters()) { // Check that the filter is in triggerEvent
                 const trigger::Keys& trig_keys = trig_event->filterKeys(filter_index);
-                const trigger::TriggerObjectCollection& trig_obj_collection(trig_event->getObjects());
+                const trigger::TriggerObjectCollection & trig_obj_collection(trig_event->getObjects());
                 // Get the objects from the trigger keys
                 for (auto& i_key : trig_keys) {
                     const trigger::TriggerObject* trig_obj = &trig_obj_collection[i_key];
@@ -1182,8 +1176,7 @@ namespace zf {
             if (e1->CutPassed("type_gsf") == 1) {
                 spectator_electron = e1;
             }
-        }
-        else if (e1->CutPassed("type_photon") == 1) {
+        } else if (e1->CutPassed("type_photon") == 1) {
             electron_to_correct = e1;
             if (e0->CutPassed("type_gsf") == 1) {
                 spectator_electron = e0;
@@ -1198,21 +1191,19 @@ namespace zf {
             // We can do the correction
             if (spectator_electron != nullptr) {
                 //3.18 m to EE, 3.8 T field, and a factor of 10/3 for GeV/c
-                const double B_FIELD = 3.8;  // Tesla
-                const double DIST_TO_EE = 3.18;  // Distance to EE in meters
+                const double B_FIELD = 3.8; // Tesla
+                const double DIST_TO_EE = 3.18; // Distance to EE in meters
 
-                const int Q_NT = -1 * spectator_electron->charge();//inferred NT electron charge
+                const int Q_NT = -1 * spectator_electron->charge(); //inferred NT electron charge
                 const double NUMERIC_FACTOR = DIST_TO_EE * B_FIELD * 3 / 20;
                 // 1/(10/3) is from GeV/c, and 1/2 is geometric
-                const double ETA_NT = fabs(electron_to_correct->eta());//sign of eta is unimportant
+                const double ETA_NT = fabs(electron_to_correct->eta()); //sign of eta is unimportant
                 const double PT_NT = electron_to_correct->pt();
-                const double ADDITIVE_CORRECTION =  Q_NT * NUMERIC_FACTOR / sinh( ETA_NT ) / PT_NT;
-
+                const double ADDITIVE_CORRECTION = Q_NT * NUMERIC_FACTOR / sinh(ETA_NT) / PT_NT;
                 electron_to_correct->set_phi(electron_to_correct->phi() + ADDITIVE_CORRECTION);
                 electron_to_correct->AddCutResult("nt_corrected", true, WEIGHT);
                 return;
-            }
-            // No GSF to use to correct
+            }                // No GSF to use to correct
             else {
                 electron_to_correct->AddCutResult("nt_corrected", false, WEIGHT);
                 return;
@@ -1232,4 +1223,4 @@ namespace zf {
             delete i_elec;
         }
     }
-}  // namespace zf
+} // namespace zf
