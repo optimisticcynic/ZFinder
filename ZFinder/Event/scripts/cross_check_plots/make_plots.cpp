@@ -17,7 +17,9 @@ int main() {
 
     // Data
     TFile* data_tfile = new TFile(
-            "/data/whybee0a/user/gude_2/Data/20150324_SingleElectron_2012ALL/hadded.root"
+            //"/data/whybee0a/user/gude_2/Data/20150324_SingleElectron_2012ALL/hadded.root"//old
+            
+            "/data/whybee0a/user/lesko_2/fermi/Output/Zfinderoutput15-4-27/2012ABCD15-4-27.root"//newly made by me
             , "READ");
     DataConfig data_config(
             data_tfile,
@@ -29,6 +31,7 @@ int main() {
     // Signal MC
     TFile* mc_tfile = new TFile(
             //"/data/whybee0a/user/gude_2/MC/20150318_MADGRAPH/MadGraph_DRESSED_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_POWHEG_CT10/POWHEG_DRESSED_hadded.root"//Alexs old Powheg
             "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderMCPDFweight15-24-27/Powheg15-6-28.root"
             , "READ");
     DataConfig mc_config(
@@ -37,13 +40,14 @@ int main() {
             "DY to ee",
             // * 3 because 1177.3 is to a single flavor, but the MC has all 3
             //1177.3 * 3.,  // cross section in pb, from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
-            1966.7*3, // Powheg differnt cross section cause does smaller min energy
+            1966.7, // Powheg different cross section cause does smaller min energy might not need 3
             "ZFinder/weighted_counter",  // TDir from before any cut
             SIGNAL_MC
             );
     // BG
     TFile* bg_tfile_0 = new TFile(
-            "/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_TTBar_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_TTBar_hadded.root"
+            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_TTBar15-7-15.root"//new?
             , "READ");
     DataConfig bg_config_0(
             bg_tfile_0,
@@ -54,7 +58,8 @@ int main() {
             BG_MC
             );
     TFile* bg_tfile_1 = new TFile(
-            "/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_Ditau_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_Ditau_hadded.root"
+            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_Ditau15-7-15.root"
             , "READ");
     DataConfig bg_config_1(
             bg_tfile_1,
@@ -65,7 +70,8 @@ int main() {
             BG_MC
             );
     TFile* bg_tfile_2 = new TFile(
-            "/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_singlet_tw_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_singlet_tw_hadded.root"
+            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_singlet_tw15-7-15.root"
             , "READ");
     DataConfig bg_config_2(
             bg_tfile_2,
@@ -76,7 +82,8 @@ int main() {
             BG_MC
             );
     TFile* bg_tfile_3 = new TFile(
-            "/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_singlet_tbarw_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_singlet_tbarw_hadded.root"
+            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_singlet_tbarw15-7-15.root"
             , "READ");
     DataConfig bg_config_3(
             bg_tfile_3,
@@ -87,7 +94,8 @@ int main() {
             BG_MC
             );
     TFile* bg_tfile_4 = new TFile(
-            "/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_wz_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_wz_hadded.root"
+            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_wz15-7-15.root"
             , "READ");
     DataConfig bg_config_4(
             bg_tfile_4,
@@ -98,7 +106,8 @@ int main() {
             BG_MC
             );
     TFile* bg_tfile_5 = new TFile(
-            "/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_ww_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_ww_hadded.root"
+            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_ww15-7-15.root"
             , "READ");
     DataConfig bg_config_5(
             bg_tfile_5,
@@ -109,7 +118,8 @@ int main() {
             BG_MC
             );
     TFile* bg_tfile_6 = new TFile(
-            "/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_zz_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_BGs/BG_zz_hadded.root"
+            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_zz15-7-15.root"
             , "READ");
     DataConfig bg_config_6(
             bg_tfile_6,
