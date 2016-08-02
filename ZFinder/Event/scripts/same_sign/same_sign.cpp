@@ -40,11 +40,11 @@ const double phistarBins[] = {0.000, 0.004, 0.008, 0.012, 0.016, 0.020, 0.024, 0
 size_t nphistar = (sizeof (phistarBins) / sizeof (phistarBins[0])) - 1;
 
 
-const bool SeperateYs = false;
+const bool SeperateYs = true;
 const double YSeperations[] = {0,.4,.8,1.2,1.6, 2.0,2.4};
 const size_t nYSeper = (sizeof (YSeperations) / sizeof (YSeperations[0])) - 1;
 const bool debug = false;
-const bool AlexFiles = false;
+const bool AlexFiles = true;
 
 TTree* GetTTree(const std::string TFILE, const std::string TTREE) {
     // Open the TFiles
@@ -116,26 +116,26 @@ double GetWeight(
 histogram_map Get2DHistoMap(double Ymin = 0, double YMax = 2.4) {
     // The list of files
     std::map<std::string, std::string> files_to_open = {
-        //{"Data", "/data/whybee0a/user/gude_2/Data/20150306_SingleElectron_2012ALL_same_sign/20150306_SingleElectron_2012ALL_same_sign.root"},
-        ////{"Signal", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/MadGraph_hadded.root"}, 
-        //{"BG_Ditau", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_Ditau_hadded.root"},
-        //{"BG_TTBar", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_TTBar_hadded.root"},
-        //{"BG_single_t", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_singlet_tw_hadded.root"},
-        //{"BG_single_tbar", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_singlet_tbarw_hadded.root"},
-        //{"BG_ww", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_ww_hadded.root"},
-        //{"BG_wz", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_wz_hadded.root"},
-        //{"BG_zz", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_zz_hadded.root"},
+        {"Data", "/data/whybee0a/user/gude_2/Data/20150306_SingleElectron_2012ALL_same_sign/20150306_SingleElectron_2012ALL_same_sign.root"},
+        //{"Signal", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/MadGraph_hadded.root"}, 
+        {"BG_Ditau", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_Ditau_hadded.root"},
+        {"BG_TTBar", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_TTBar_hadded.root"},
+        {"BG_single_t", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_singlet_tw_hadded.root"},
+        {"BG_single_tbar", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_singlet_tbarw_hadded.root"},
+        {"BG_ww", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_ww_hadded.root"},
+        {"BG_wz", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_wz_hadded.root"},
+        {"BG_zz", "/data/whybee0a/user/gude_2/MC/20150219_MC_CTEQ6LL_same_sign_no_mass_cut/BG_zz_hadded.root"},
 
 
-        {"Data", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderoutputData15-9-8/2012ABCD15-9-8.root"},
-        //{"Signal", "/data/whybee0a/user/lesko_2/fermi/Output/Zfinder2MCPDFweightBorn15-7-2/Powheg15-7-04.root"},
-        {"BG_Ditau", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_Ditau15-7-15.root"},
-        {"BG_TTBar", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_TTBar15-7-15.root"},
-        {"BG_single_t", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_singlet_tw15-7-15.root"},
-        {"BG_single_tbar", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_singlet_tbarw15-7-15.root"},
-        {"BG_ww", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_ww15-7-15.root"},
-        {"BG_wz", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_wz15-7-15.root"},
-        {"BG_zz", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_zz15-7-15.root"},
+        //{"Data", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderoutputData15-9-8/2012ABCD15-9-8.root"},
+        ////{"Signal", "/data/whybee0a/user/lesko_2/fermi/Output/Zfinder2MCPDFweightBorn15-7-2/Powheg15-7-04.root"},
+        //{"BG_Ditau", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_Ditau15-7-15.root"},
+        //{"BG_TTBar", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_TTBar15-7-15.root"},
+        //{"BG_single_t", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_singlet_tw15-7-15.root"},
+        //{"BG_single_tbar", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_singlet_tbarw15-7-15.root"},
+        //{"BG_ww", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_ww15-7-15.root"},
+        //{"BG_wz", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_wz15-7-15.root"},
+        //{"BG_zz", "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderBGFiles15-7-15/BG_zz15-7-15.root"},
 
     };
 
@@ -345,7 +345,7 @@ std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, cons
         RooAbsReal* MassIntHelp = MyBackgroundPdf.createIntegral(z_mass, Range("Int"));
         fake_zmass->Fill(60+.5*(MassBin-1),MassIntHelp->getVal());
     }
-    if(MinY > 1.9)cout<<"Zachary Bin: "<<BIN<<" Sig ratio: "<<sigratio.getVal()<<" Fraction intigral "<<fracInt->getVal()<<" Data Intigral: "<<data_histo->Integral()<<"Signal PDF int: "<<endl;
+    if(MinY==2.0)cout<<"Zachary Bin: "<<BIN<<" Sig ratio: "<<sigratio.getVal()<<" Fraction intigral "<<fracInt->getVal()<<" Data Intigral: "<<data_histo->Integral()<<"Signal PDF int: "<<endl;
     //return {sigratio.getVal() * fracInt->getVal(), fracInt->getPropagatedError(*fit_result)};
     
     //Zach normalize Values  data.integral(0,300)*sigratio.value()*backgroundpdf.integral(60,120)/backgroundpdf.integral(0,300)
