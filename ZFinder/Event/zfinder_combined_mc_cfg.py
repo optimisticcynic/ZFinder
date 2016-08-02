@@ -49,15 +49,15 @@ process.pfiso = cms.Sequence(process.pfParticleSelectionSequence + process.eleIs
 
 # Compute PDF weights for uncertainty calculation
 process.pdfWeights = cms.EDProducer("PdfWeightProducer",
-#         Fix POWHEG if buggy (this PDF set will also appear on output,
-#         so only two more PDF sets can be added in PdfSetNames if not "")
-        FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
+        # Fix POWHEG if buggy (this PDF set will also appear on output,
+        # so only two more PDF sets can be added in PdfSetNames if not "")
+        #FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
         GenTag = cms.untracked.InputTag("genParticles"),
         PdfInfoTag = cms.untracked.InputTag("generator"),
         # Produce PDF weights (maximum is 3)
         PdfSetNames = cms.untracked.vstring(
-#            "NNPDF23_nlo_as_0118.LHgrid",
-#            "MSTW2008nlo68cl.LHgrid",
+            "NNPDF23_nlo_as_0118.LHgrid",
+            "MSTW2008nlo68cl.LHgrid",
             "CT10.LHgrid",
 #            "cteq6ll.LHpdf",
             ),
@@ -65,7 +65,7 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
 
 # Compute FSR weights for uncertainty calculation
 process.fsrWeight = cms.EDProducer("FSRWeightProducer",
-       GenTag = cms.untracked.InputTag("genParticles"),
+        GenTag = cms.untracked.InputTag("genParticles"),
         )
 
 # ZFinder
@@ -78,9 +78,13 @@ process.ZFinder = ZFinder.clone(
         is_mc = cms.bool(True),
         use_muon_acceptance = cms.bool(True),
         require_gen_z = cms.bool(False),
-        run_pdf_weights = cms.bool(False),
-        run_fsr_weight = cms.bool(False),
-        gen_electrons = cms.string("Dressed"),
+        run_pdf_weights = cms.bool(True),
+        run_fsr_weight = cms.bool(True),
+        gen_electrons = cms.string("Naked"),
+	# Pick the GEN level electrons to use. Select one of:
+        #    - "Dressed"
+        #    - "Born"
+        #    - "Bare" or "Naked"
         )
 
 # RUN

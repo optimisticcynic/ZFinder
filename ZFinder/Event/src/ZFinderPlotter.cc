@@ -47,6 +47,18 @@ namespace zf {
         z0_rapidity_ = tdir.make<TH1D>(z0_rapidity_file.c_str(), z0_rapidity_name.c_str(), 100, -5., 5.);
         z0_rapidity_->GetXaxis()->SetTitle("Z_{Y}");
         z0_rapidity_->GetYaxis()->SetTitle("Counts");
+        
+        const std::string z0_rapidity_nameNaked = "Z0 Rapidity_Naked";
+        const std::string z0_rapidity_fileNaked = "z_rapidity_Naked";
+        z0_rapidityNaked_ = tdir.make<TH1D>(z0_rapidity_fileNaked.c_str(), z0_rapidity_nameNaked.c_str(), 100, -5., 5.);
+        z0_rapidityNaked_->GetXaxis()->SetTitle("Z_{Y}");
+        z0_rapidityNaked_->GetYaxis()->SetTitle("Counts");
+        
+        const std::string z0_rapidityBorn_name = "Z0 Rapidity_Born";
+        const std::string z0_rapidityBorn_file = "z_rapidity_Born";
+        z0_rapidityBorn_ = tdir.make<TH1D>(z0_rapidityBorn_file.c_str(), z0_rapidityBorn_name.c_str(), 100, -5., 5.);
+        z0_rapidityBorn_->GetXaxis()->SetTitle("Z_{Y}");
+        z0_rapidityBorn_->GetYaxis()->SetTitle("Counts");
 
         // z0_pt (dressed)
         const std::string z0_pt_name = "Z0 p_{T}";
@@ -463,6 +475,8 @@ namespace zf {
             z0_mass_coarse_->Fill(ZF_EVENT.reco_z.m, EVENT_WEIGHT);
             z0_mass_fine_->Fill(ZF_EVENT.reco_z.m, EVENT_WEIGHT);
             z0_rapidity_->Fill(ZF_EVENT.reco_z.y, EVENT_WEIGHT);
+            z0_rapidityNaked_->Fill(ZF_EVENT.reco_z.yNaked, EVENT_WEIGHT);
+            z0_rapidityBorn_->Fill(ZF_EVENT.reco_z.yBorn, EVENT_WEIGHT);
             z0_pt_->Fill(ZF_EVENT.reco_z.pt, EVENT_WEIGHT);
             phistar_->Fill(ZF_EVENT.reco_z.phistar, EVENT_WEIGHT);
             phistar_split->Fill(ZF_EVENT.reco_z.phistar, EVENT_WEIGHT);
@@ -574,6 +588,8 @@ namespace zf {
             z0_mass_coarse_->Fill(ZF_EVENT.truth_z.m, EVENT_WEIGHT);
             z0_mass_fine_->Fill(ZF_EVENT.truth_z.m, EVENT_WEIGHT);
             z0_rapidity_->Fill(ZF_EVENT.truth_z.y, EVENT_WEIGHT);
+            z0_rapidityBorn_->Fill(ZF_EVENT.truth_z.yBorn, EVENT_WEIGHT);
+            z0_rapidityNaked_->Fill(ZF_EVENT.truth_z.yNaked, EVENT_WEIGHT);
             z0_pt_->Fill(ZF_EVENT.truth_z.pt, EVENT_WEIGHT);
             phistar_->Fill(ZF_EVENT.truth_z.phistar, EVENT_WEIGHT);
             phistar_split->Fill(ZF_EVENT.truth_z.phistar, EVENT_WEIGHT);

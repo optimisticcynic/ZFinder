@@ -28,6 +28,7 @@
 
 #include <set>
 #include <TH1.h>
+#include <TH2.h>
 
 using namespace std; // yeah I am evil, get over it
 
@@ -50,7 +51,7 @@ TTree* GetTTree(const std::string TFILE, const std::string TTREE) {
     return tree;
 }
 
-void FillHisto(const string FileName, double CrossSection, TH1* ZMassHist) {
+void FillHisto(const string FileName, double CrossSection, TH2* ZMassHist) {
     const string Tree_LowCut = "ZFinder/Combined Single Lowered Threshold Reco/Combined Single Lowered Threshold Reco";
     TTree* OurTree = GetTTree(FileName, Tree_LowCut);
     TFile* theFile = new TFile(FileName.c_str());
@@ -58,64 +59,59 @@ void FillHisto(const string FileName, double CrossSection, TH1* ZMassHist) {
     double totalUnweighted = UnweightedSize->Integral();
     TBranch* RecoEvent = OurTree->GetBranch("reco");
     TLeaf* ZMass = RecoEvent->GetLeaf("z_m");
+    TLeaf* ZRap = RecoEvent->GetLeaf("z_y");
 
     cout << "Number of events? :" << OurTree->GetEntries() << endl;
     for (int i = 0; i < OurTree->GetEntries(); i++) {
         if (!(i % 50000))cout << " still going :" << i << endl;
         OurTree->GetEntry(i);
-        ZMassHist->Fill(ZMass->GetValue(), CrossSection / totalUnweighted);
+        ZMassHist->Fill(ZMass->GetValue(), ZRap->GetValue(), CrossSection / totalUnweighted);
     }
 }
 
 int main() {
     bool debug = true;
-    //const string file_nameTree_020_030Cut_30_20 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC30-20pt-15-5-03/QCDMC020_030_Cuts_30-20pt-15-5-03.root";
-    //const string file_nameTree_030_080Cut_30_20 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC30-20pt-15-5-03/QCDMC030_080_Cuts_30-20pt-15-5-03.root";
+    const string file_nameTree_020_030Cut_30_20 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC30-20pt-15-5-03/QCDMC020_030_Cuts_30-20pt-15-5-03.root";
+    const string file_nameTree_030_080Cut_30_20 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC30-20pt-15-5-03/QCDMC030_080_Cuts_30-20pt-15-5-03.root";
     const string file_nameTree_080_170Cut_30_20 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC30-20pt-15-5-03/QCDMC080_170_Cuts_30-20pt-15-5-03.root";
     const string file_nameTree_170_250Cut_30_20 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC30-20pt-15-5-03/QCDMC170_250_Cuts_30-20pt-15-5-03.root";
     const string file_nameTree_250_350Cut_30_20 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC30-20pt-15-5-03/QCDMC250_350_Cuts_30-20pt-15-5-03.root";
 
 
-    /*TTree* Tree_020_030Cut_30_20 = GetTTree(file_nameTree_020_030Cut_30_20, Tree_LowCut);
-    TTree* Tree_030_080Cut_30_20 = GetTTree(file_nameTree_030_080Cut_30_20, Tree_LowCut);
-    TTree* Tree_080_170Cut_30_20 = GetTTree(file_nameTree_080_170Cut_30_20, Tree_LowCut);
-    TTree* Tree_170_250Cut_30_20 = GetTTree(file_nameTree_170_250Cut_30_20, Tree_LowCut);
-    TTree* Tree_250_350Cut_30_20 = GetTTree(file_nameTree_250_350Cut_30_20, Tree_LowCut);*/
-    TH1* ZMassHist_3020 = new TH1F("QCDMass30_20", "QCD Invariant Mass;GeV;Events/GeV", 60, 60, 120);
-    TH1* ZMassHist_2010 = new TH1F("QCDMass_20_10", "QCD Invariant Mass;GeV;Events/GeV", 60, 60, 120);
+    //TTree* Tree_020_030Cut_30_20 = GetTTree(file_nameTree_020_030Cut_30_20, Tree_LowCut);
+    //TTree* Tree_030_080Cut_30_20 = GetTTree(file_nameTree_030_080Cut_30_20, Tree_LowCut);
+    //TTree* Tree_080_170Cut_30_20 = GetTTree(file_nameTree_080_170Cut_30_20, Tree_LowCut);
+    //TTree* Tree_170_250Cut_30_20 = GetTTree(file_nameTree_170_250Cut_30_20, Tree_LowCut);
+    //TTree* Tree_250_350Cut_30_20 = GetTTree(file_nameTree_250_350Cut_30_20, Tree_LowCut);
+    
+    double YLimits[]={0,.8,1.6,2.4,10};
+    TH2* ZMassHist_3020 = new TH2F("QCDMass30_20", "QCD Invariant Mass;GeV;Events/GeV", 60, 60, 120, 4, YLimits);
+    //TH1* ZMassHist_2010 = new TH1F("QCDMass_20_10", "QCD Invariant Mass;GeV;Events/GeV", 60, 60, 120);
     //TFile* theFile = new TFile(file_nameTree_020_030Cut_30_20.c_str());
-
-    //FillHisto(file_nameTree_020_030Cut_30_20, 2.886e8, ZMassHist_3020);
-    //FillHisto(file_nameTree_030_080Cut_30_20, 7.433e7, ZMassHist_3020);
+ 
+    FillHisto(file_nameTree_020_030Cut_30_20, 2.886e8, ZMassHist_3020);
+    FillHisto(file_nameTree_030_080Cut_30_20, 7.433e7, ZMassHist_3020);
     FillHisto(file_nameTree_080_170Cut_30_20, 1191000.0, ZMassHist_3020);
     FillHisto(file_nameTree_170_250Cut_30_20, 30990, ZMassHist_3020);
     FillHisto(file_nameTree_250_350Cut_30_20, 4250.0, ZMassHist_3020);
 
 
 
-    //const string file_nameTree_020_030Cut_20_10 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC20-10pt-15-5-03/QCDMC020_030_Cuts_20-10pt-15-5-03.root";
-    //const string file_nameTree_030_080Cut_20_10 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC20-10pt-15-5-03/QCDMC030_080_Cuts_20-10pt-15-5-03.root";
-    const string file_nameTree_080_170Cut_20_10 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC20-10pt-15-5-03/QCDMC080_170_Cuts_20-10pt-15-5-03.root";
-    const string file_nameTree_170_250Cut_20_10 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC20-10pt-15-5-03/QCDMC170_250_Cuts_20-10pt-15-5-03.root";
-    const string file_nameTree_250_350Cut_20_10 = "/data/whybee0a/user/lesko_2/fermi/qcdback/ZfinderQCDMC20-10pt-15-5-03/QCDMC250_350_Cuts_20-10pt-15-5-03.root";
 
 
     //FillHisto(file_nameTree_020_030Cut_20_10, 2.886e8, ZMassHist_2010);
     //FillHisto(file_nameTree_030_080Cut_20_10, 7.433e7, ZMassHist_2010);
-    FillHisto(file_nameTree_080_170Cut_20_10, 1191000.0, ZMassHist_2010);
-    FillHisto(file_nameTree_170_250Cut_20_10, 30990, ZMassHist_2010);
-    FillHisto(file_nameTree_250_350Cut_20_10, 4250.0, ZMassHist_2010);
+    //FillHisto(file_nameTree_080_170Cut_20_10, 1191000.0, ZMassHist_2010);
+    //FillHisto(file_nameTree_170_250Cut_20_10, 30990, ZMassHist_2010);
+    //FillHisto(file_nameTree_250_350Cut_20_10, 4250.0, ZMassHist_2010);
 
     TFile *theFile = new TFile("Masses.root", "RECREATE");
     theFile->cd();
     ZMassHist_3020->Write();
     ZMassHist_3020->Delete();
-    ZMassHist_2010->Write();
-    ZMassHist_2010->Delete();
     if (debug)cout << "test 1" << endl;
     using namespace RooFit;
-    TFile *theFile20_10Pt250_350 = new TFile(file_nameTree_250_350Cut_20_10.c_str());
-    TH1* ZMassHisto250_350Old = (TH1F*) theFile20_10Pt250_350->Get("ZFinder/Combined Single Lowered Threshold Reco/5 pt>20.0 AND pt>10.0/z_mass_all");
+    //TH1* ZMassHisto250_350Old = (TH1F*) theFile20_10Pt250_350->Get("ZFinder/Combined Single Lowered Threshold Reco/5 pt>20.0 AND pt>10.0/z_mass_all");
     TH1* ZMassHisto250_350= new TH1F("Masses","Mass",285,15,300);
     //double Newsize[285];
     for(int i=15;i<301;i++)

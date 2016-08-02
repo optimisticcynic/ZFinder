@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input file
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring('file:/hdfs/cms/phedex/store/data/Run2012A/DoubleElectron/AOD/22Jan2013-v1/20000/003EC246-5E67-E211-B103-00259059642E.root')
+        fileNames = cms.untracked.vstring('/store/data/Run2012A/DoubleElectron/AOD/22Jan2013-v1/20000/003EC246-5E67-E211-B103-00259059642E.root')
         )
 
 # Output file
@@ -31,7 +31,7 @@ process.TFileService = cms.Service("TFileService",
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePythonTips#Use_a_JSON_file_of_good_lumi_sec
 from FWCore.ParameterSet.Types import untracked, VLuminosityBlockRange
 from FWCore.PythonUtilities.LumiList import LumiList
-json_file = "../../Metadata/lumi_json/Run2012ABCD.json"  # File location
+json_file = "/uscms/home/zlesko/ZFinder/Dev/CMSSW_5_3_14/src/ZFinder/Event/Run2012ABCD.json"  # File location
 run_2012abcd_lumis = LumiList(filename = json_file).getCMSSWString().split(',')
 process.source.lumisToProcess = untracked(VLuminosityBlockRange(run_2012abcd_lumis))
 
@@ -65,6 +65,7 @@ process.ZFinder = ZFinder.clone(
         ecalElectronsInputTag = cms.InputTag("CalibratedElectrons", "calibratedGsfElectrons"),
         ZDefinitions = zdefs_combined_data,
         use_muon_acceptance = cms.bool(True),
+
         )
 
 # RUN

@@ -152,6 +152,9 @@ ZFinder::ZFinder(const edm::ParameterSet& iConfig) : iConfig_(iConfig) {
         // Now we make the ZDefs for Reco/Truth, and use those to set up the
         // plotters.
         // Reco
+        for(auto myCuts : cuts0){
+            std::cout<<" our cuts are "<<myCuts<<std::endl;
+        }
         zf::ZDefinition* zd_reco = new zf::ZDefinition(name_reco, cuts0, cuts1, min_mz, max_mz, use_truth_mass);
         zdefs_.push_back(zd_reco);
         TFileDirectory tdir_zd(fs->mkdir(name_reco));
