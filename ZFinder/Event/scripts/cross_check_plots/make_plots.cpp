@@ -18,8 +18,7 @@ int main() {
     // Data
     TFile* data_tfile = new TFile(
             //"/data/whybee0a/user/gude_2/Data/20150324_SingleElectron_2012ALL/hadded.root"//old
-            
-            "/data/whybee0a/user/lesko_2/fermi/Output/Zfinderoutput15-4-27/2012ABCD15-4-27.root"//newly made by me
+            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderoutputData15-9-8/2012ABCD15-9-8.root"
             , "READ");
     DataConfig data_config(
             data_tfile,
@@ -30,9 +29,11 @@ int main() {
             );
     // Signal MC
     TFile* mc_tfile = new TFile(
-            //"/data/whybee0a/user/gude_2/MC/20150318_MADGRAPH/MadGraph_DRESSED_hadded.root"
+            //"/data/whybee0a/user/gude_2/MC/20150318_MADGRAPH/MadGraph_DRESSED_hadded.root"//alexs madgraph
+            //"/data/whybee0a/user/lesko_2/fermi/Output/ZfinderMad15-9-8/MadgraphDressed15-9-8.root"
             //"/data/whybee0a/user/gude_2/MC/20150318_POWHEG_CT10/POWHEG_DRESSED_hadded.root"//Alexs old Powheg
-            "/data/whybee0a/user/lesko_2/fermi/Output/ZfinderMCPDFweight15-24-27/Powheg15-6-28.root"
+            //"/data/whybee0a/user/lesko_2/fermi/Output/ZfinderMCPDFweight15-24-27/Powheg15-6-28.root"
+            "/data/whybee0a/user/lesko_2/fermi/Output/Zfinder2MCPDFweightBorn15-7-2/Powheg15-7-04.root"
             , "READ");
     DataConfig mc_config(
             mc_tfile,
@@ -129,27 +130,31 @@ int main() {
             "ZFinder/weighted_counter",
             BG_MC
             );
+
     TFile* bg_tfile_7 = new TFile(
-            "/home/user1/gude/CMS/src/CMSSW_5_3_13_UNSTABLE/src/ZFinder/Event/scripts/same_sign/output.root"
+           // "/home/user1/lesko/work/Dev/CMSSW_5_3_14/src/ZFinder/Event/scripts/same_sign/output.root"
+            "/home/user1/lesko/work/HomeWork/Phistar/QCDGraphs/PtGraph.root"
             , "READ");
     DataConfig bg_config_7(
             bg_tfile_7,
-            "qcd/",
+            "qcd",
             "QCD",
             19712,
             BG_MC
             );
+
     // BG Map, the names are used for sort ordering alphabetically, so adding
     // numbers to the front can be used to change the order.
     data_config_map bg_map;
-    bg_map["9 TTBAR"] = bg_config_0;
-    bg_map["6 DY to #tau#tau"] = bg_config_1;
+
     bg_map["2 Single Top"] = bg_config_2;
     bg_map["3 Single TBar"] = bg_config_3;
+    bg_map["5 WW"] = bg_config_5;    
+    bg_map["6 DY to #tau#tau"] = bg_config_1;
     bg_map["7 WZ"] = bg_config_4;
-    bg_map["5 WW"] = bg_config_5;
     bg_map["8 ZZ"] = bg_config_6;
-    //bg_map["4 QCD"] = bg_config_7;
+    bg_map["9 TTBAR"] = bg_config_0;
+    bg_map["4 QCD"] = bg_config_7;
 
     // Setup the plotter
     CrossCheckPlotter* plotter = new CrossCheckPlotter(
@@ -162,18 +167,20 @@ int main() {
     //plotter->plot(Z_MASS_ALL, "z_mass_all.pdf");
     //plotter->plot(Z_MASS_COARSE, "z_mass_coarse.pdf");
     plotter->plot(Z_MASS_FINE, "z_mass_fine.pdf");
-    plotter->plot(Z_RAPIDITY, "z_rapidity.pdf");
-    plotter->plot(Z_PT, "z_pt.pdf");
-    plotter->plot(E0_PT, "e0_pt.pdf");
-    plotter->plot(E0_ETA, "e0_eta.pdf");
+    //plotter->plot(Z_RAPIDITY, "z_rapidity.pdf");
+    //plotter->plot(Z_PT, "z_pt.pdf");
+    //plotter->plot(E0_PT, "e0_pt.pdf");
+    //plotter->plot(E0_ETA, "e0_eta.pdf");
     //plotter->plot(E0_PHI, "e0_phi.pdf");
     //plotter->plot(E0_CHARGE, "e0_charge.pdf");
-    plotter->plot(E1_PT, "e1_pt.pdf");
-    plotter->plot(E1_ETA, "e1_eta.pdf");
+    //plotter->plot(E1_PT, "e1_pt.pdf");
+    //plotter->plot(E1_ETA, "e1_eta.pdf");
     //plotter->plot(E1_PHI, "e1_phi.pdf");
     //plotter->plot(E1_CHARGE, "e1_charge.pdf");
-    plotter->plot(PHISTAR, "phistar.pdf");
-    plotter->plot(N_VERTS, "n_verts.pdf");
+    //std::cout<<"TEST 1"<<std::endl;
+    //plotter->plot(PHISTAR, "phistar.pdf");
+    //std::cout<<"TEST 2"<<std::endl;
+    //plotter->plot(N_VERTS, "n_verts.pdf");
     //plotter->plot(N_E, "n_e.pdf");
     //plotter->plot(E0_R9, "e0_r9.pdf");
     //plotter->plot(E1_R9, "e1_r9.pdf");
