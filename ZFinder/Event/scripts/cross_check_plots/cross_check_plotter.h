@@ -12,10 +12,12 @@
 #include <TFile.h>
 #include <TH1.h>
 #include <TStyle.h>
+#include "TGraphAsymmErrors.h"
 
 
 // Various hatching paterns
-enum RootFill{
+
+enum RootFill {
     PACKEDDOT_FILL = 3001,
     DOT_FILL = 3002,
     SPARSEDOT_FILL = 3003,
@@ -26,7 +28,7 @@ enum RootFill{
     CROSS_HATCH = 3013
 };
 
-enum PlotType{
+enum PlotType {
     Z_MASS_ALL,
     Z_MASS_COARSE,
     Z_MASS_FINE,
@@ -63,25 +65,25 @@ enum PlotType{
     E1_1OEM1OP
 };
 
-struct PlotConfig{
+struct PlotConfig {
     // Constructor
+
     PlotConfig(
-        std::string x_label,
-        std::string y_label,
-        std::string title,
-        std::string histo_name,
-        bool logy,
-        bool logx,
-        std::vector<double> binning
+            std::string x_label,
+            std::string y_label,
+            std::string title,
+            std::string histo_name,
+            bool logy,
+            bool logx,
+            std::vector<double> binning
             ) :
-        x_label(x_label),
-        y_label(y_label),
-        title(title),
-        histo_name(histo_name),
-        logy(logy),
-        logx(logx),
-        binning(binning)
-    { // Everything needed is done by the initializer list
+    x_label(x_label),
+    y_label(y_label),
+    title(title),
+    histo_name(histo_name),
+    logy(logy),
+    logx(logx),
+    binning(binning) { // Everything needed is done by the initializer list
     }
 
     // Variables used in plotting
@@ -94,20 +96,23 @@ struct PlotConfig{
     std::vector<double> binning;
 };
 
-enum DataType{
+enum DataType {
     DATA,
     SIGNAL_MC,
     BG_MC
 };
 
-struct DataConfig{
+struct DataConfig {
     /*
      * Cross sections should be given in picobarns, and luminosities should be
      * in 1/pb.
      */
     // Empty constructor
-    DataConfig() {}
+
+    DataConfig() {
+    }
     // Constructor for data
+
     DataConfig(
             TFile* tfile,
             std::string tdir_name,
@@ -115,15 +120,15 @@ struct DataConfig{
             double luminosity,
             DataType datatype
             ) :
-        tfile(tfile),
-        tdir_name(tdir_name),
-        name(name),
-        luminosity(luminosity),
-        datatype(datatype),
-        scale_factor(-1)
-    { // Everything needed is done by the initializer list
+    tfile(tfile),
+    tdir_name(tdir_name),
+    name(name),
+    luminosity(luminosity),
+    datatype(datatype),
+    scale_factor(-1) { // Everything needed is done by the initializer list
     }
     // Constructor for MC
+
     DataConfig(
             TFile* tfile,
             std::string tdir_name,
@@ -132,48 +137,74 @@ struct DataConfig{
             std::string tdir_uncut,
             DataType datatype
             ) :
-        tfile(tfile),
-        tdir_name(tdir_name),
-        name(name),
-        datatype(datatype),
-        scale_factor(-1)
-    {
+    tfile(tfile),
+    tdir_name(tdir_name),
+    name(name),
+    datatype(datatype),
+    scale_factor(-1) {
         // We need to open the tfile and pull out the number of events
         TH1* tmp_histo;
         const std::string TARGET_HISTO = tdir_uncut;
         tfile->GetObject(TARGET_HISTO.c_str(), tmp_histo);
-        if (!tmp_histo) {
-            std::cout << "Can not open the " << name;
-            std::cout << " histogram to count events!" << std::endl;
-            std::exit(EXIT_FAILURE);
+        std::cout<<"our target diff is "<<name.compare("phistar")<<"   with name "<<name<<std::endl;
+        if(name.compare("qcd")==0){
+            std::cout<<"we have phi* "<<TARGET_HISTO<<std::endl;
+            std::cout<<"our bin is "<<tmp_histo->GetBinContent(2)<<std::endl<<std::endl<<std::endl;
+            
         }
-        const int N_BINS = tmp_histo->GetNbinsX();
-        // Integrate from the underflow bin (0) to the overflow (N+1)
-        const double EVENTS = tmp_histo->Integral(0, N_BINS + 1);
-        //std::cout << name << " Events: " << EVENTS << std::endl;
-        // Compute the luminosity
-        luminosity = EVENTS / cross_section;
-    }
+        if (!tmp_histo) {
+            const double phistarBins[] = {0.000, 0.004, 0.008, 0.012, 0.016, 0.020, 0.024, 0.029, 0.034, 0.039, 0.045, 0.052, 0.057, 0.064, 0.072, 0.081, 0.091, 0.102, 0.114, 0.128, 0.145, 0.165, 0.189, 0.219, 0.258, 0.312, 0.391, 0.524, 0.695, 0.918, 1.153, 1.496, 1.947, 2.522, 3.277, 10};
+            size_t nphistar = (sizeof (phistarBins) / sizeof (phistarBins[0])) - 1;
 
-    // Variables for data and MC
-    TFile* tfile;
-    std::string tdir_name;
-    std::string name;
-    double luminosity;
-    DataType datatype;
-    double scale_factor;
+            TGraphAsymmErrors * g;
+            tfile->GetObject(TARGET_HISTO.c_str(), g);
+            std::cout<<"our target histo is "<<TARGET_HISTO<<std::endl;
+            if (!g) {
+                std::cout << "Can? not open the " << name;
+                std::cout << " histogram to count events!" << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+            tmp_histo = new TH1D(name.c_str(), name.c_str(), nphistar, phistarBins);
+            tmp_histo->Sumw2();
+            for (size_t iphistar = 0; iphistar < nphistar; iphistar++) {
+                double x, y;
+                g->GetPoint(iphistar, x, y);
+                double error = g->GetErrorYhigh(iphistar);
+                tmp_histo->SetBinContent(iphistar + 1, y);
+                tmp_histo->SetBinError(iphistar + 1, error);
+            }
+
+
+        }
+
+    
+    const int N_BINS = tmp_histo->GetNbinsX();
+    // Integrate from the underflow bin (0) to the overflow (N+1)
+    const double EVENTS = tmp_histo->Integral(0, N_BINS + 1);
+    //std::cout << name << " Events: " << EVENTS << std::endl;
+    // Compute the luminosity
+    luminosity = EVENTS / cross_section;
+}
+
+// Variables for data and MC
+TFile* tfile;
+std::string tdir_name;
+std::string name;
+double luminosity;
+DataType datatype;
+double scale_factor;
 };
 
-struct HistoStore{
+struct HistoStore {
+
     HistoStore(
-        TH1D* data_histo,
-        TH1D* mc_histo,
-        std::vector<std::pair<std::string, TH1D*>> bg_histos
+            TH1D* data_histo,
+            TH1D* mc_histo,
+            std::vector<std::pair<std::string, TH1D*>> bg_histos
             ) :
-        data_histo(data_histo),
-        mc_histo(mc_histo),
-        bg_histos(bg_histos)
-    { // Everything needed is done by the initializer list
+    data_histo(data_histo),
+    mc_histo(mc_histo),
+    bg_histos(bg_histos) { // Everything needed is done by the initializer list
     }
 
     // Variables
@@ -187,84 +218,86 @@ typedef std::map<PlotType, PlotConfig> config_map;
 typedef std::pair<PlotType, PlotConfig> config_pair;
 typedef std::map<std::string, DataConfig> data_config_map;
 
-class CrossCheckPlotter{
-    public:
-        // Constructors
-        CrossCheckPlotter() {}
-        CrossCheckPlotter(
-                DataConfig data_config,
-                DataConfig mc_config
-                );
-        CrossCheckPlotter(
-                DataConfig data_config,
-                DataConfig mc_config,
-                data_config_map bg_configs
-                );
-        // Destructor
-        ~CrossCheckPlotter();
+class CrossCheckPlotter {
+public:
+    // Constructors
 
-        // Make various plots
-        void plot(
+    CrossCheckPlotter() {
+    }
+    CrossCheckPlotter(
+            DataConfig data_config,
+            DataConfig mc_config
+            );
+    CrossCheckPlotter(
+            DataConfig data_config,
+            DataConfig mc_config,
+            data_config_map bg_configs
+            );
+    // Destructor
+    ~CrossCheckPlotter();
+
+    // Make various plots
+    void plot(
             const PlotType PLOT_TYPE,
             const std::string FILE_NAME = "output.png"
             );
 
-    private:
-        // Used to set up the class from the multiple constructors
-        void setup();
+private:
+    // Used to set up the class from the multiple constructors
+    void setup();
 
-        // Store all the Data and MC information
-        DataConfig data_config_;  // Data
-        DataConfig mc_config_;  // Signal MC
-        data_config_map bg_configs_;  // Background MC
+    // Store all the Data and MC information
+    DataConfig data_config_; // Data
+    DataConfig mc_config_; // Signal MC
+    data_config_map bg_configs_; // Background MC
 
-        // Open the histograms
-        HistoStore open_histos(
-                const std::string HISTO_NAME,
-                const bool DO_RESCALE = false
-                );
+    // Open the histograms
+    HistoStore open_histos(
+            const std::string HISTO_NAME,
+            const bool DO_RESCALE = false
+            );
 
-        // Set the plotting style
-        void set_plot_style();
-        void redraw_border();
-        TStyle* style_;
+    // Set the plotting style
+    void set_plot_style();
+    void redraw_border();
+    TStyle* style_;
 
-        // Input TFiles
-        TFile* data_tfile_;
-        TFile* mc_tfile_;
+    // Input TFiles
+    TFile* data_tfile_;
+    TFile* mc_tfile_;
 
-        // Histogram rescaling
-        void set_mc_scale_factors();
-        double get_rescaling(const DataConfig& DATA, const DataConfig& MC);
-        double set_area_rescale_factor();
-        double area_rescale_factor_;
+    // Histogram rescaling
+    void set_mc_scale_factors();
+    double get_rescaling(const DataConfig& DATA, const DataConfig& MC);
+    double set_area_rescale_factor();
+    double area_rescale_factor_;
 
-        // Target directories
-        std::string data_dir_name_;
-        std::string mc_dir_name_;
+    // Target directories
+    std::string data_dir_name_;
+    std::string mc_dir_name_;
 
-        // Functions and variables related to the config_map
-        void init_config_map();
-        config_map conf_map_;
+    // Functions and variables related to the config_map
+    void init_config_map();
+    config_map conf_map_;
 
-        // Calculate rebinning
-        std::vector<double> get_rebinning(
-                std::vector<double> desired_bins,
-                const TH1* const HISTO
-                );
+    // Calculate rebinning
+    std::vector<double> get_rebinning(
+            std::vector<double> desired_bins,
+            const TH1 * const HISTO
+            );
 
-        // Hardcoded variables
-        static constexpr int X_VAL_ = 1000;
-        static constexpr int Y_VAL_ = 1000;
-        // These are measured from 0, 0 in the bottom left
-        static constexpr double RIGHT_EDGE_ = 0.96;
-        static constexpr double LEFT_EDGE_ = 0.10;
-        static constexpr double TOP_EDGE_ = 0.95;
-        static constexpr double BOTTOM_EDGE_ = 0.27;
-        // Size of the ratio plot (0-1, as a fraction of the total height)
-        static constexpr double RATIO_HEIGHT = 0.25;
-        // Colors and styles for backgrounds
-        void init_color_styles();
-        std::vector<std::pair<RootFill, int>> color_styles_;
+    // Hardcoded variables
+    static constexpr int X_VAL_ = 1000;
+    static constexpr int Y_VAL_ = 1000;
+    // These are measured from 0, 0 in the bottom left
+    static constexpr double RIGHT_EDGE_ = 0.96;
+    static constexpr double LEFT_EDGE_ = 0.10;
+    static constexpr double TOP_EDGE_ = 0.95;
+    static constexpr double BOTTOM_EDGE_ = 0.27;
+    // Size of the ratio plot (0-1, as a fraction of the total height)
+    static constexpr double RATIO_HEIGHT = 0.25;
+    // Colors and styles for backgrounds
+    void init_color_styles();
+    std::vector<std::pair<RootFill, int>> color_styles_;
 };
 #endif  // ZFINDER_CROSS_CHECK_PLOTTER_H_
