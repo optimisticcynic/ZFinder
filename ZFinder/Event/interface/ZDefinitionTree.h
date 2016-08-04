@@ -43,6 +43,8 @@ namespace zf {
                 void clear_values() {
                     z_m = -1;
                     z_y = -10;
+                    z_yNaked=-10;
+                    z_yBorn=-10;
                     z_phistar_born = -1;
                     z_phistar_dressed = -1;
                     z_phistar_naked = -1;
@@ -69,6 +71,8 @@ namespace zf {
                 
                 double z_m;
                 double z_y;
+                double z_yNaked;
+                double z_yBorn;
                 double z_phistar_born;
                 double z_phistar_dressed;
                 double z_phistar_naked;

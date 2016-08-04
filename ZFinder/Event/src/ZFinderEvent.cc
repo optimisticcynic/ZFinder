@@ -168,6 +168,8 @@ namespace zf {
             if (truth_z.m != -1) { // Good truth Z
                 reco_z.other_phistar = truth_z.phistar;
                 reco_z.other_y = truth_z.y;
+                reco_z.yNaked=truth_z.yNaked;
+                reco_z.yBorn =truth_z.yBorn;
                 reco_z.bornPhistar = truth_z.bornPhistar;
                 reco_z.nakedPhistar = truth_z.nakedPhistar;
             }
@@ -371,6 +373,9 @@ namespace zf {
             const double ISO_EM = (*(isoVals[1]))[ele_ref];
             const double ISO_NH = (*(isoVals[2]))[ele_ref];
 
+            //const double ISO_CH =0;
+            //const double ISO_EM =0;
+            //const double ISO_NH =0;
             // test ID
             // working points
             const bool VETO = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO);
@@ -555,9 +560,9 @@ namespace zf {
             math::PtEtaPhiMLorentzVector e1lv(e1->pt(), e1->eta(), e1->phi(), ELECTRON_MASS);
             math::PtEtaPhiMLorentzVector zlv;
             zlv = e0lv + e1lv;
-
             reco_z.m = zlv.mass();
             reco_z.y = zlv.Rapidity();
+            
             reco_z.pt = zlv.pt();
             reco_z.phistar = ReturnPhistar(e0->eta(), e0->phi(), e1->eta(), e1->phi());
             reco_z.eta = zlv.eta();
@@ -600,6 +605,8 @@ namespace zf {
         // Z Data
         reco_z.m = -1;
         reco_z.y = -1000;
+        reco_z.yNaked=-1000;
+        reco_z.yBorn=-1000;
         reco_z.pt = -1;
         reco_z.phistar = -1;
         reco_z.bornPhistar = -1;
@@ -758,6 +765,21 @@ namespace zf {
             truth_z.nakedPhistar = ReturnPhistar(e0_truth->nakedEta(), e0_truth->nakedPhi(), e1_truth->nakedEta(), e1_truth->nakedPhi());
             truth_z.eta = z_boson->eta();
             truth_z.deltaR = deltaR(e0_truth->eta(), e0_truth->phi(), e1_truth->eta(), e1_truth->phi());
+      //Creating bare and born y values
+            const double ELECTRON_MASS = 5.109989e-4;
+            math::PtEtaPhiMLorentzVector e0lvBorn(e0_truth->bornPt(), e0_truth->bornEta(), e0_truth->bornPhi(), ELECTRON_MASS);
+            math::PtEtaPhiMLorentzVector e1lvBorn(e1_truth->bornPt(), e1_truth->bornEta(), e1_truth->bornPhi(), ELECTRON_MASS);
+            math::PtEtaPhiMLorentzVector e0lvNaked(e0_truth->nakedPt(), e0_truth->nakedEta(), e0_truth->nakedPhi(), ELECTRON_MASS);
+            math::PtEtaPhiMLorentzVector e1lvNaked(e1_truth->nakedPt(), e1_truth->nakedEta(), e1_truth->nakedPhi(), ELECTRON_MASS);
+            math::PtEtaPhiMLorentzVector zlvBorn;
+            math::PtEtaPhiMLorentzVector zlvNaked;
+
+            zlvBorn = e0lvBorn + e1lvBorn;
+            zlvNaked = e0lvNaked + e1lvNaked;
+            truth_z.yBorn = zlvBorn.Rapidity();
+            truth_z.yNaked = zlvNaked.Rapidity();
+      
+        
         }
     }
 

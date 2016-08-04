@@ -20,7 +20,7 @@ namespace zf {
 
         // Make the Tree to write to
         tree_ = new TTree(zdef.NAME.c_str(), zdef.NAME.c_str());
-        const std::string CODE = "z_m/D:z_y:z_phistar_born:z_phistar_dressed:z_phistar_naked:z_phistar_sc:z_pt:z_eta:e_pt0:e_pt1:e_eta0:e_eta1:e_phi0:e_phi1:e_rnine0:e_rnine1:n_true_pileup:e_charge0/I:e_charge1:n_verts:t0tight/O:t1tight";
+        const std::string CODE = "z_m/D:z_y:z_yNaked:z_yBorn:z_phistar_born:z_phistar_dressed:z_phistar_naked:z_phistar_sc:z_pt:z_eta:e_pt0:e_pt1:e_eta0:e_eta1:e_phi0:e_phi1:e_rnine0:e_rnine1:n_true_pileup:e_charge0/I:e_charge1:n_verts:t0tight/O:t1tight";
         tree_->Branch("reco", &reco_, CODE.c_str());
         if (IS_MC_) {
             tree_->Branch("truth", &truth_, CODE.c_str());
@@ -105,6 +105,12 @@ namespace zf {
         // Reco
         reco_.z_m = zf_event.reco_z.m;
         reco_.z_y = zf_event.reco_z.y;
+        
+        reco_.z_yNaked=zf_event.reco_z.yNaked;
+        reco_.z_yBorn=zf_event.reco_z.yBorn;
+
+        std::cout<<"z_y Naked :"<<zf_event.reco_z.yNaked<<std::endl;
+        std::cout<<"z_y Born :"<<zf_event.reco_z.yBorn<<std::endl;
         reco_.z_phistar_dressed = zf_event.reco_z.phistar;
         reco_.z_phistar_born = zf_event.reco_z.bornPhistar;
         reco_.z_phistar_naked = zf_event.reco_z.nakedPhistar;

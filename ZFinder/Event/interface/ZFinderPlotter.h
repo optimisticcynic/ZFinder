@@ -32,6 +32,8 @@ namespace zf {
             TH1D* z0_mass_coarse_;
             TH1D* z0_mass_fine_;
             TH1D* z0_rapidity_;
+            TH1D* z0_rapidityBorn_; 
+            TH1D* z0_rapidityNaked_;
             TH1D* z0_pt_;
             TH1D* e0_pt_;
             TH1D* e0_pt_naked_;

@@ -72,6 +72,8 @@ namespace zf {
                 double m;
                 double pt;
                 double y;
+                double yNaked;
+                double yBorn;
                 double phistar;
                 double bornPhistar;
                 double nakedPhistar;
