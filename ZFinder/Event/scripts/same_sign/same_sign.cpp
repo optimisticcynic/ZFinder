@@ -40,8 +40,8 @@ const double phistarBins[] = {0.000, 0.004, 0.008, 0.012, 0.016, 0.020, 0.024, 0
 size_t nphistar = (sizeof (phistarBins) / sizeof (phistarBins[0])) - 1;
 
 
-const bool SeperateYs = true;
-const double YSeperations[] = {0,.4,.8,1.2,1.6, 2.0,2.4};
+const bool SeperateYs = false;
+const double YSeperations[] = {0, .4, .8, 1.2, 1.6, 2.0, 2.4};
 const size_t nYSeper = (sizeof (YSeperations) / sizeof (YSeperations[0])) - 1;
 const bool debug = false;
 const bool AlexFiles = true;
@@ -181,8 +181,10 @@ histogram_map Get2DHistoMap(double Ymin = 0, double YMax = 2.4) {
         }
 
         // Pack into a hitogram
-        TH2D* histo = new TH2D("phistar_and_mass", "Phistar Vs. Mass;#phi*;m_{ee}", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0], 50, 0, 300);
-        for (int i = 0; i < tree->GetEntries(); i++) { 
+        TH2D* histo;
+        if(SeperateYs)histo= new TH2D("phistar_and_mass", "Phistar Vs. Mass;#phi*;m_{ee}", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0], 42, 0, 252);
+        else histo= new TH2D("phistar_and_mass", "Phistar Vs. Mass;#phi*;m_{ee}", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0], 50, 0, 300);
+        for (int i = 0; i < tree->GetEntries(); i++) {
             tree->GetEntry(i);
             if (Ymin > fabs(Zrapidity->GetValue()) || YMax < fabs(Zrapidity->GetValue()))continue;
             // Reject opposite sign
@@ -245,9 +247,12 @@ TH1D* Get1DFromBin(TH2D* histo, const int BIN, const std::string PREFIX) {
 std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, const std::string BIN, const std::string PHISTAR_RANGE, TH1D* fake_zmass, double MaxY = 2.4, double MinY = 0) {
     using namespace RooFit;
     // The X value of the histogram
-    RooRealVar z_mass("z_mass", "m_{ee}", 0, 300, "GeV");
+    double ZMax =0;
+    if(SeperateYs)ZMax=252;
+    else ZMax=300;
+    RooRealVar z_mass("z_mass", "m_{ee}", 0, ZMax, "GeV");
     z_mass.setRange("signal", 60., 120.);
-   
+
     // Data and MC histogram
     RooDataHist h_data("h_data", "h_data", RooArgSet(z_mass), data_histo);
     RooDataHist h_mc("h_mc", "h_mc", RooArgSet(z_mass), template_histo);
@@ -264,9 +269,13 @@ std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, cons
     RooFormulaVar var2("var2", "-1.0*gamma*z_mass", RooArgSet(gamma, z_mass));
     RooGenericPdf MyBackgroundPdf("MyBackgroundPdf", "ROOT::Math::erfc(var1)*exp(var2)", RooArgSet(var1, var2));
     // Make the sum of the histogram and the Haupt function
-    RooRealVar sigratio("sigratio", "sigratio", 0.9, 0.6, 1.0);//Zach Allow to go lower at high phi*
-    RooAddPdf combined_pdf("combined_pdf", "combined_pdf", RooArgList(signalpdf, MyBackgroundPdf), RooArgList(sigratio));
+    //RooRealVar sigratio("sigratio", "sigratio", 0.9, 0.6, 1.0); //Zach Allow to go lower at high phi*
+    RooRealVar nsig("nsig", "nsig", 1000, 0.0, 1000000);
+    RooRealVar nbkg("nbkg", "nbkg", 1000, 0.0, 1000000);
 
+
+    RooAddPdf combined_pdf("combined_pdf", "combined_pdf", RooArgList(signalpdf, MyBackgroundPdf), RooArgList(nsig,nbkg));
+    //RooAddPdf combined_pdf("combined_pdf", "combined_pdf", RooArgList(signalpdf, MyBackgroundPdf), RooArgList(sigratio));
     // Fit, but without yelling please
     std::cout << std::endl;
     std::cout << "Running on Bin: " << BIN << std::endl;
@@ -322,42 +331,44 @@ std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, cons
         sprintf(buffer, "qcd_fit_plot_for_Bin_%s_forY%f-%f", BIN.c_str(), MinY, MaxY);
         OutputFileName = buffer;
     } else {
-        if (AlexFiles)OutputFileName = "qcd_fitAlex_plot_for_Bin" + BIN;
+        if (AlexFiles)OutputFileName = "qcd_fitNick_plot_for_Bin" + BIN;
         else OutputFileName = "qcd_fitNotAlex_plot_for_Bin" + BIN;
     }
 
     const std::string OUT_NAME = OutputFileName + "Test." + FILE_TYPE;
-    //const std::string OUT_NAME_C = OutputFileName + "." + FILE_TYPE + ".C";
     canvas.Print(OUT_NAME.c_str(), FILE_TYPE.c_str());
-    //canvas.Print(OUT_NAME_C.c_str(), "cxx");
-
-    // Find the integral of the background
-    //std::cout << "Computing Integral" << std::endl;
-    
-    //RooAbsReal* SanityCheck = combined_pdf.pdfList().find("MyBackgroundPdf").createIntegral(z_mass, Range("signal"));
     RooAbsReal* SignalPDFInt = signalpdf.createIntegral(z_mass, Range("signal"));
     RooAbsReal* fracInt = MyBackgroundPdf.createIntegral(z_mass, Range("signal"));
-    
+
     delete fitFrame;
 
-    for(size_t MassBin = 1; MassBin<=120;MassBin++){
-        z_mass.setRange("Int", 60+.5*(MassBin-1), 60+.5*(MassBin));//Set range for an integral
+    for (size_t MassBin = 1; MassBin <= 120; MassBin++) {
+        z_mass.setRange("Int", 60 + .5 * (MassBin - 1), 60 + .5 * (MassBin)); //Set range for an integral
         RooAbsReal* MassIntHelp = MyBackgroundPdf.createIntegral(z_mass, Range("Int"));
-        fake_zmass->Fill(60+.5*(MassBin-1),MassIntHelp->getVal());
+        fake_zmass->Fill(60 + .5 * (MassBin - 1), MassIntHelp->getVal());
     }
-    if(MinY==2.0)cout<<"Zachary Bin: "<<BIN<<" Sig ratio: "<<sigratio.getVal()<<" Fraction intigral "<<fracInt->getVal()<<" Data Intigral: "<<data_histo->Integral()<<"Signal PDF int: "<<endl;
-    //return {sigratio.getVal() * fracInt->getVal(), fracInt->getPropagatedError(*fit_result)};
-    
-    //Zach normalize Values  data.integral(0,300)*sigratio.value()*backgroundpdf.integral(60,120)/backgroundpdf.integral(0,300)
+
     double ScaledValue, ScaledError;
-     z_mass.setRange("ALL", 0., 300.);
-     RooAbsReal* fracIntTotal = MyBackgroundPdf.createIntegral(z_mass, Range("ALL"));//Should be PDF backgroundpdf.integral(0,300)
-    //ScaledValue=data_histo->Integral(0,300)*(sigratio.getVal())*fracInt->getVal()/fracIntTotal->getVal();
-    //cout<<"AAAAAAND OUR Scaled Value which should be Fraction I think is "<<ScaledValue<<endl;
+    z_mass.setRange("ALL", 0., 300.);
+    RooAbsReal* fracIntTotal = MyBackgroundPdf.createIntegral(z_mass, Range("ALL")); //Should be PDF backgroundpdf.integral(0,300)
+
+    ////Nicoles changes
+    RooAbsReal* fracIntNic = MyBackgroundPdf.createIntegral(z_mass);
+    RooAbsReal* fracIntSNic = MyBackgroundPdf.createIntegral(z_mass, NormSet(z_mass), Range("signal"));
+    double NicolesResult = nbkg.getVal()*fracIntSNic->getVal();
+    double NicoleErrorSquared = fracIntSNic->getVal()*fracIntSNic->getVal()*nbkg.getPropagatedError(*fit_result)*nbkg.getPropagatedError(*fit_result);
+    NicoleErrorSquared += fracIntSNic->getPropagatedError(*fit_result)*fracIntSNic->getPropagatedError(*fit_result)*nbkg.getVal()*nbkg.getVal();
+    double NicoleError = sqrt(NicoleErrorSquared);
+    cout << "Alpha: " << alpha.getVal() << " Delta: " << delta.getVal() << " And Gamma: " << gamma.getVal() << "  nsig: " << nsig.getVal()<<" nbkg: "<< nbkg.getVal()<< " fracIntTotal is: " << fracIntTotal->getVal() << "  Total Data is " << data_histo->Integral() << endl;
+    //RooRealVar StupidTest("Stupid", "Stupid", 0, 10, 300);
+    //StupidTest.setVal(87.9932);
+    //cout << "Stupid TEst is " << MyBackgroundPdf.getVal(StupidTest) << endl;
+    //cout << "Zachary Bin: " << BIN << " Sig ratio: " << sigratio.getVal() << " Fraction intigral " << fracInt->getVal() << " Data Intigral: " << data_histo->Integral() << "Signal PDF int: " << endl;
+    //cout<<"NICOLES RESULT IS "<<NicolesResult<<" AND THE OTHER THING IS "<<fracInt->getVal()<<endl;
     return
     {
-        fracInt->getVal(), fracInt->getPropagatedError(*fit_result)
-        //ScaledValue, fracInt->getPropagatedError(*fit_result)
+        //fracInt->getVal(), fracInt->getPropagatedError(*fit_result)
+                NicolesResult,NicoleError
     };
 }
 
@@ -437,7 +448,9 @@ int main() {
             // Get histograms for each phistar bin
             TH1D* data_histo = Get1DFromBin(data_histo2d, i, "data_bin_");
             TH1D* template_histo = Get1DFromBin(template_histo2d, i, "template_bin_");
-
+            Int_t reBiner = data_histo->Integral() > 100 ? 1 : 2;
+            TH1D* data_histo_Test = (TH1D*) data_histo->Rebin(reBiner);
+            TH1D* template_histo_Test = (TH1D*) template_histo->Rebin(reBiner);
             // Set up the title for the plot
             const double MIN_PHISTAR = zf::ATLAS_PHISTAR_BINNING.at(i - 1);
             const double MAX_PHISTAR = zf::ATLAS_PHISTAR_BINNING.at(i);
@@ -453,8 +466,8 @@ int main() {
             std::ostringstream convert2;
             convert2 << std::setw(2) << std::setfill('0') << i;
             std::pair<double, double> fit_result;
-            if (SeperateYs) fit_result = FitForQCD(data_histo, template_histo, convert2.str(), PHISTART_BINNING, fake_zmass, YSeperations[Yindex + 1], YSeperations[Yindex]);
-            else fit_result = FitForQCD(data_histo, template_histo, convert2.str(), PHISTART_BINNING, fake_zmass);
+            if (SeperateYs) fit_result = FitForQCD(data_histo_Test, template_histo_Test, convert2.str(), PHISTART_BINNING, fake_zmass, YSeperations[Yindex + 1], YSeperations[Yindex]);
+            else fit_result = FitForQCD(data_histo_Test, template_histo_Test, convert2.str(), PHISTART_BINNING, fake_zmass);
             // Fill the background histogram
             qcd_phistar_histo->SetBinContent(i, fit_result.first);
             qcd_phistar_histo->SetBinError(i, fit_result.second);
@@ -485,7 +498,7 @@ int main() {
             char buffer [50];
             double Min = YSeperations[Yindex];
             double Max = YSeperations[Yindex + 1];
-            if(AlexFiles)sprintf(buffer, "outputY%f-%fAlexTest.root", Min, Max);
+            if (AlexFiles)sprintf(buffer, "outputY%f-%fAlexTest.root", Min, Max);
             else sprintf(buffer, "outputY%f-%fNotAlexTest.root", Min, Max);
             OutputFileName = buffer;
         } else {
