@@ -44,13 +44,13 @@ double GetWeight(
 
 double GetOverallNormalization(const std::string NAME);
 
-histogram_map Get2DHistoMap();
+histogram_map Get2DHistoMap(double, double);
 
 TH2D* GetTemplate(histogram_map histo_map);
 
 TH1D* Get1DFromBin(TH2D* histo, const int BIN);
 
-std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, const std::string BIN, const std::string PHISTAR_RANGE);
+std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, const std::string BIN, const std::string PHISTAR_RANGE,double MaxY,double MinY);
 
 void MakePhistarPlot(TH1D* histo);
 
