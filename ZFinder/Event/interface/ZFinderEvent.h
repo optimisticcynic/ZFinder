@@ -80,6 +80,10 @@ namespace zf {
                 double scPhistar;
                 double eta;
                 double deltaR;
+                int z_mom1PDG;//mom 1 of Z
+                int z_mom2PDG;//Mom 2 of Z
+                int z_penultimate1PDG;//Initial particle for Z mom 1
+                int z_penultimate2PDG;//Initial particle for Z mom 2
                 //for events where gen XOR reco failed given selection:
                 double other_y;
                 double other_phistar;

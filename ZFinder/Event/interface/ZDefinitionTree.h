@@ -19,129 +19,143 @@
 
 
 namespace zf {
+
     class ZDefinitionTree {
-        public:
-            // Constructor
-            ZDefinitionTree(
+    public:
+        // Constructor
+        ZDefinitionTree(
                 const ZDefinition& zdef,
                 TFileDirectory& tdir,
                 const bool IS_MC = false
-            );
+                );
 
-            // destructor
-            ~ZDefinitionTree();
+        // destructor
+        ~ZDefinitionTree();
 
-            // Add event
-            void Fill(const ZFinderEvent& zf_event);
+        // Add event
+        void Fill(const ZFinderEvent& zf_event);
 
-            // Wrapper around TTree::GetCurrentFile()
-            TFile* GetCurrentFile();
+        // Wrapper around TTree::GetCurrentFile()
+        TFile* GetCurrentFile();
 
-        protected:
-            // Structs that map to the branches
-            struct branch_struct {
-                void clear_values() {
-                    z_m = -1;
-                    z_y = -10;
-                    z_yNaked=-10;
-                    z_yBorn=-10;
-                    z_phistar_born = -1;
-                    z_phistar_dressed = -1;
-                    z_phistar_naked = -1;
-                    z_phistar_sc = -1;
-                    z_pt = -1;
-                    z_eta = -10;
-                    e_pt[0] = -1;
-                    e_eta[0] = -10;
-                    e_phi[0] = -10;
-                    e_pt[1] = -1;
-                    e_eta[1] = -10;
-                    e_phi[1] = -10;
-                    e_charge[0] = -2;
-                    e_charge[1] = -2;
-                    n_verts = -1;
-                    n_true_pileup = -1;
-                    t0tight = false;
-                    t1tight = false;
-                }
-                // Constructor
-                branch_struct() {
-                    clear_values();
-                }
-                
-                double z_m;
-                double z_y;
-                double z_yNaked;
-                double z_yBorn;
-                double z_phistar_born;
-                double z_phistar_dressed;
-                double z_phistar_naked;
-                double z_phistar_sc;
-                double z_pt;
-                double z_eta;
-                double e_pt[2];
-                double e_eta[2];
-                double e_phi[2];
-                double e_rnine[2];
-                double n_true_pileup;
-                int e_charge[2];
-                int n_verts;
-                bool t0tight;
-                bool t1tight;
-            } reco_, truth_;
+    protected:
+        // Structs that map to the branches
 
-            struct event_branch {
-                void clear_values() {
-                    event_number = 0;
-                    run_number = 0;
-                    is_mc = false;
-                }
+        struct branch_struct {
 
-                // Constructor
-                event_branch() {
-                    clear_values();
-                }
-                unsigned int event_number;
-                unsigned int run_number;
-                bool is_mc;
-            } event_;
+            void clear_values() {
+                z_m = -1;
+                z_y = -10;
+                z_yNaked = -10;
+                z_yBorn = -10;
+                z_phistar_born = -1;
+                z_phistar_dressed = -1;
+                z_phistar_naked = -1;
+                z_phistar_sc = -1;
+                z_pt = -1;
+                z_eta = -10;
+                e_pt[0] = -1;
+                e_eta[0] = -10;
+                e_phi[0] = -10;
+                e_pt[1] = -1;
+                e_eta[1] = -10;
+                e_phi[1] = -10;
+                e_charge[0] = -2;
+                e_charge[1] = -2;
+                n_verts = -1;
+                n_true_pileup = -1;
+                z_mom1PDG=666; //mom 1 of Z
+                z_mom2PDG=666; //Mom 2 of Z
+                z_penultimate1PDG=666; //Initial particle for Z mom 1
+                z_penultimate2PDG=666; //Initial particle for Z mom 2
+                t0tight = false;
+                t1tight = false;
+            }
+            // Constructor
 
-            // Set up a variable size branch for the weights
-            int weight_size_;
-            double weight_fsr_;
-            int weight_cteq_size_;
-            int weight_mstw_size_;
-            int weight_nnpdf_size_;
-            static constexpr int MAX_SIZE_ = 100;
-            static constexpr int MAX_SIZE_PDF_ = 110;
-            // Although vectors seem like the right solution, since TTrees need
-            // the memory used for the array to be static, an array is
-            // (unfortunately) the best choice
-            double weights_[MAX_SIZE_];
-            int weight_ids_[MAX_SIZE_];
-            double weights_cteq_[MAX_SIZE_PDF_];
-            double weights_mstw_[MAX_SIZE_PDF_];
-            double weights_nnpdf_[MAX_SIZE_PDF_];
+            branch_struct() {
+                clear_values();
+            }
 
-            // We insert the weights and the IDs into this vector, and then
-            // read it out into the array before filling the tree
-            std::vector<std::pair<int, double>> weight_id_vector_;
+            double z_m;
+            double z_y;
+            double z_yNaked;
+            double z_yBorn;
+            double z_phistar_born;
+            double z_phistar_dressed;
+            double z_phistar_naked;
+            double z_phistar_sc;
+            double z_pt;
+            double z_eta;
+            double e_pt[2];
+            double e_eta[2];
+            double e_phi[2];
+            double e_rnine[2];
+            double n_true_pileup;
+            int z_mom1PDG; //mom 1 of Z
+            int z_mom2PDG; //Mom 2 of Z
+            int z_penultimate1PDG; //Initial particle for Z mom 1
+            int z_penultimate2PDG; //Initial particle for Z mom 2
+            int e_charge[2];
+            int n_verts;
+            bool t0tight;
+            bool t1tight;
+        } reco_, truth_;
 
-            // Name
-            std::string zdef_name_;
+        struct event_branch {
 
-            // File Directory to write to
-            TDirectory* tdir_;
+            void clear_values() {
+                event_number = 0;
+                run_number = 0;
+                is_mc = false;
+            }
 
-            // Use the MC or reco data
-            const bool IS_MC_;
+            // Constructor
 
-            // The tuples
-            TTree* tree_;
+            event_branch() {
+                clear_values();
+            }
+            unsigned int event_number;
+            unsigned int run_number;
+            bool is_mc;
+        } event_;
 
-            // Get the weight of the cuts
-            void FillCutWeights(cutlevel_vector const * const CUT_LEVEL_VECTOR);
-            double GetTotalWeight(cutlevel_vector const * const CUT_LEVEL_VECTOR);
+        // Set up a variable size branch for the weights
+        int weight_size_;
+        double weight_fsr_;
+        int weight_cteq_size_;
+        int weight_mstw_size_;
+        int weight_nnpdf_size_;
+        static constexpr int MAX_SIZE_ = 100;
+        static constexpr int MAX_SIZE_PDF_ = 110;
+        // Although vectors seem like the right solution, since TTrees need
+        // the memory used for the array to be static, an array is
+        // (unfortunately) the best choice
+        double weights_[MAX_SIZE_];
+        int weight_ids_[MAX_SIZE_];
+        double weights_cteq_[MAX_SIZE_PDF_];
+        double weights_mstw_[MAX_SIZE_PDF_];
+        double weights_nnpdf_[MAX_SIZE_PDF_];
+
+        // We insert the weights and the IDs into this vector, and then
+        // read it out into the array before filling the tree
+        std::vector<std::pair<int, double >> weight_id_vector_;
+
+        // Name
+        std::string zdef_name_;
+
+        // File Directory to write to
+        TDirectory* tdir_;
+
+        // Use the MC or reco data
+        const bool IS_MC_;
+
+        // The tuples
+        TTree* tree_;
+
+        // Get the weight of the cuts
+        void FillCutWeights(cutlevel_vector const * const CUT_LEVEL_VECTOR);
+        double GetTotalWeight(cutlevel_vector const * const CUT_LEVEL_VECTOR);
     };
-}  // namespace zf
+} // namespace zf
 #endif  // ZFINDER_ZDEFINITIONTREE_H_

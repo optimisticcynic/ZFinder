@@ -11,6 +11,7 @@
 
 namespace zf {
     // Constructor
+
     ZDefinitionTree::ZDefinitionTree(const ZDefinition& zdef, TFileDirectory& tdir, const bool IS_MC) : IS_MC_(IS_MC) {
         // Get the name of the cut we want
         zdef_name_ = zdef.NAME;
@@ -20,7 +21,7 @@ namespace zf {
 
         // Make the Tree to write to
         tree_ = new TTree(zdef.NAME.c_str(), zdef.NAME.c_str());
-        const std::string CODE = "z_m/D:z_y:z_yNaked:z_yBorn:z_phistar_born:z_phistar_dressed:z_phistar_naked:z_phistar_sc:z_pt:z_eta:e_pt0:e_pt1:e_eta0:e_eta1:e_phi0:e_phi1:e_rnine0:e_rnine1:n_true_pileup:e_charge0/I:e_charge1:n_verts:t0tight/O:t1tight";
+        const std::string CODE = "z_m/D:z_y:z_yNaked:z_yBorn:z_phistar_born:z_phistar_dressed:z_phistar_naked:z_phistar_sc:z_pt:z_eta:e_pt0:e_pt1:e_eta0:e_eta1:e_phi0:e_phi1:e_rnine0:e_rnine1:n_true_pileup:z_mom1PDG/I:z_mom2PDG/I:z_penultimate1PDG/I:z_penultimate2PDG/I:e_charge0/I:e_charge1:n_verts:t0tight/O:t1tight";
         tree_->Branch("reco", &reco_, CODE.c_str());
         if (IS_MC_) {
             tree_->Branch("truth", &truth_, CODE.c_str());
@@ -88,29 +89,33 @@ namespace zf {
             }
             weight_cteq_size_ = zf_event.weights_cteq.size();
             for (int i = 0; i < std::min(weight_cteq_size_, MAX_SIZE_PDF_); ++i) {
-              weights_cteq_[i] = zf_event.weights_cteq[i];
+                weights_cteq_[i] = zf_event.weights_cteq[i];
             }
             weight_mstw_size_ = zf_event.weights_mstw.size();
             for (int i = 0; i < std::min(weight_mstw_size_, MAX_SIZE_PDF_); ++i) {
-              weights_mstw_[i] = zf_event.weights_mstw[i];
+                weights_mstw_[i] = zf_event.weights_mstw[i];
             }
             weight_nnpdf_size_ = zf_event.weights_nnpdf.size();
             for (int i = 0; i < std::min(weight_nnpdf_size_, MAX_SIZE_PDF_); ++i) {
-              weights_nnpdf_[i] = zf_event.weights_nnpdf[i];
+                weights_nnpdf_[i] = zf_event.weights_nnpdf[i];
             }
 
-            weight_fsr_=zf_event.weight_fsr;
-         }
+            weight_fsr_ = zf_event.weight_fsr;
+        }
 
         // Reco
         reco_.z_m = zf_event.reco_z.m;
-        reco_.z_y = zf_event.reco_z.y;
-        
-        reco_.z_yNaked=zf_event.reco_z.yNaked;
-        reco_.z_yBorn=zf_event.reco_z.yBorn;
+        //reco_.z_y = zf_event.reco_z.y;
+        reco_.z_y = .15;
+        std::cout<<"TREE Mom 1: "<<zf_event.reco_z.z_mom1PDG<<"  Mom 2: "<<zf_event.reco_z.z_mom2PDG<<" Penultimate1PDG: "<<zf_event.reco_z.z_penultimate1PDG<<" and the second is: "<<zf_event.reco_z.z_penultimate2PDG<<std::endl;
+        reco_.z_mom1PDG = zf_event.reco_z.z_mom1PDG;
+        reco_.z_mom2PDG = zf_event.reco_z.z_mom2PDG;
+        reco_.z_penultimate1PDG = zf_event.reco_z.z_penultimate1PDG;
+        reco_.z_penultimate1PDG = zf_event.reco_z.z_penultimate1PDG;
 
-        std::cout<<"z_y Naked :"<<zf_event.reco_z.yNaked<<std::endl;
-        std::cout<<"z_y Born :"<<zf_event.reco_z.yBorn<<std::endl;
+        reco_.z_yNaked = zf_event.reco_z.yNaked;
+        reco_.z_yBorn = zf_event.reco_z.yBorn;
+
         reco_.z_phistar_dressed = zf_event.reco_z.phistar;
         reco_.z_phistar_born = zf_event.reco_z.bornPhistar;
         reco_.z_phistar_naked = zf_event.reco_z.nakedPhistar;
@@ -132,10 +137,10 @@ namespace zf {
             reco_.e_rnine[1] = zf_event.e1->r9();
             reco_.e_charge[1] = zf_event.e1->charge();
             if (zf_event.GetZDef(zdef_name_) != nullptr) {
-                    const cutlevel_vector* clv = zf_event.GetZDef(zdef_name_);
-                    reco_.t0tight = clv->back().second.t0p1_pass;
-                    reco_.t1tight = clv->back().second.t1p0_pass;
-                }
+                const cutlevel_vector* clv = zf_event.GetZDef(zdef_name_);
+                reco_.t0tight = clv->back().second.t0p1_pass;
+                reco_.t1tight = clv->back().second.t1p0_pass;
+            }
         }
         // Truth
         if (IS_MC_ && !zf_event.is_real_data) {
@@ -149,6 +154,13 @@ namespace zf {
             truth_.z_eta = zf_event.truth_z.eta;
             truth_.n_verts = zf_event.truth_vert.num;
             truth_.n_true_pileup = zf_event.truth_vert.true_num;
+            
+            
+            truth_.z_mom1PDG = zf_event.truth_z.z_mom1PDG;
+            truth_.z_mom2PDG = zf_event.truth_z.z_mom2PDG;
+            truth_.z_penultimate1PDG = zf_event.truth_z.z_penultimate1PDG;
+            truth_.z_penultimate2PDG = zf_event.truth_z.z_penultimate2PDG;
+
             if (zf_event.e0_truth != nullptr) {
                 truth_.e_pt[0] = zf_event.e0_truth->pt();
                 truth_.e_eta[0] = zf_event.e0_truth->eta();
@@ -184,7 +196,7 @@ namespace zf {
         if (CUT_LEVEL_VECTOR != nullptr) {
             // Check if we pass via Tag 0 Probe 1, or Tag 1 Probe 1
             CutLevel last_cutlevel = CUT_LEVEL_VECTOR->back().second;
-            bool t0p1 = last_cutlevel.t0p1_pass;  // Takes Priority
+            bool t0p1 = last_cutlevel.t0p1_pass; // Takes Priority
             bool t1p0 = last_cutlevel.t1p0_pass;
 
             // Loop over our vector and at each level pull out the right
@@ -200,8 +212,7 @@ namespace zf {
                 if (t0p1) {
                     tag_weight = i_cutlevel.second.t0p1_tag_weight;
                     probe_weight = i_cutlevel.second.t0p1_probe_weight;
-                }
-                else if (t1p0) {
+                } else if (t1p0) {
                     tag_weight = i_cutlevel.second.t1p0_tag_weight;
                     probe_weight = i_cutlevel.second.t1p0_probe_weight;
                 }
@@ -221,4 +232,4 @@ namespace zf {
     TFile* ZDefinitionTree::GetCurrentFile() {
         return tree_->GetCurrentFile();
     }
-}  // namespace zf
+} // namespace zf

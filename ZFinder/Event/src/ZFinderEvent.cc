@@ -22,6 +22,8 @@
 #include "ZFinder/Event/interface/TriggerList.h"  // ET_ET_TIGHT, ET_ET_DZ, ET_ET_LOOSE, ET_NT_ET_TIGHT, ET_HF_ET_TIGHT, ET_HF_ET_LOOSE, ET_HF_HF_TIGHT, ET_HF_HF_LOOSE, SINGLE_ELECTRON_TRIGGER, ALL_TRIGGERS
 #include "ZFinder/Event/interface/PileupReweighting.h"  // RUN_2012_*_TRUE_PILEUP, SUMMER12_53X_MC_TRUE_PILEUP
 
+#include <iostream>
+
 
 namespace zf {
     /*
@@ -168,8 +170,8 @@ namespace zf {
             if (truth_z.m != -1) { // Good truth Z
                 reco_z.other_phistar = truth_z.phistar;
                 reco_z.other_y = truth_z.y;
-                reco_z.yNaked=truth_z.yNaked;
-                reco_z.yBorn =truth_z.yBorn;
+                reco_z.yNaked = truth_z.yNaked;
+                reco_z.yBorn = truth_z.yBorn;
                 reco_z.bornPhistar = truth_z.bornPhistar;
                 reco_z.nakedPhistar = truth_z.nakedPhistar;
             }
@@ -562,7 +564,7 @@ namespace zf {
             zlv = e0lv + e1lv;
             reco_z.m = zlv.mass();
             reco_z.y = zlv.Rapidity();
-            
+
             reco_z.pt = zlv.pt();
             reco_z.phistar = ReturnPhistar(e0->eta(), e0->phi(), e1->eta(), e1->phi());
             reco_z.eta = zlv.eta();
@@ -605,8 +607,8 @@ namespace zf {
         // Z Data
         reco_z.m = -1;
         reco_z.y = -1000;
-        reco_z.yNaked=-1000;
-        reco_z.yBorn=-1000;
+        reco_z.yNaked = -1000;
+        reco_z.yBorn = -1000;
         reco_z.pt = -1;
         reco_z.phistar = -1;
         reco_z.bornPhistar = -1;
@@ -616,6 +618,10 @@ namespace zf {
         reco_z.deltaR = -1;
         reco_z.other_y = -1000;
         reco_z.other_phistar = -1;
+        reco_z.z_mom1PDG = 666;
+        reco_z.z_mom2PDG = 666;
+        reco_z.z_penultimate1PDG = 666;
+        reco_z.z_penultimate2PDG = 666;
 
         truth_z.m = -1;
         truth_z.y = -1000;
@@ -628,6 +634,10 @@ namespace zf {
         truth_z.deltaR = -1;
         truth_z.other_y = -1000;
         truth_z.other_phistar = -1;
+        truth_z.z_mom1PDG = 666;
+        truth_z.z_mom2PDG = 666;
+        truth_z.z_penultimate1PDG = 666;
+        truth_z.z_penultimate2PDG = 666;
 
         // Electrons
         e0 = nullptr;
@@ -684,7 +694,7 @@ namespace zf {
          * make sure it came from a Z. This might have problems in ZZ->eeee
          * decays, but we expect those to be impossibly rare.
          */
-        //default electrons--which are now DRESSED!
+        //default electrons--which are now Born!
         const reco::GenParticle* electron_0 = nullptr;
         const reco::GenParticle* electron_1 = nullptr;
         //born electrons:
@@ -716,7 +726,7 @@ namespace zf {
                             } else if (bornElectron_0 && nakedElectron_0) {
                                 electron_0 = GetDressedElectron(bornElectron_0, nakedElectron_0);
                             }
-                        }                            // Assign the second and break, because we already have two electrons
+                        }// Assign the second and break, because we already have two electrons
                         else if (bornElectron_1 == nullptr) {
                             bornElectron_1 = dynamic_cast<const reco::GenParticle*> (gen_particle->daughter(j));
                             nakedElectron_1 = GetNakedElectron(bornElectron_1);
@@ -739,6 +749,40 @@ namespace zf {
             }
         }
 
+        std::deque<std::pair<int, const reco::GenParticle*> > Parents;
+        Parents.push_back(std::make_pair(0, z_boson));
+
+        if (z_boson != nullptr && electron_0 != nullptr && electron_1 != nullptr) {//Used to find parents of Z. for testing purposes. will remove
+            while (Parents.size() > 0) {
+                for (size_t Mothers = 0; Mothers < Parents[0].second->numberOfMothers(); Mothers++) {
+                    Parents.push_back(std::make_pair(1 + Parents[0].first, (reco::GenParticle*) Parents[0].second->mother(Mothers)));
+                    if (Parents[0].first == 0) {
+                        if (truth_z.z_mom1PDG == 666) {//666 is not filled
+                            truth_z.z_mom1PDG = Parents[0].second->mother(Mothers)->pdgId();
+                            reco_z.z_mom1PDG = Parents[0].second->mother(Mothers)->pdgId();
+                        } else {
+                            truth_z.z_mom2PDG = Parents[0].second->mother(Mothers)->pdgId();
+                            reco_z.z_mom2PDG = Parents[0].second->mother(Mothers)->pdgId();
+                        }
+                    }
+                    if (Parents[0].second->mother(Mothers)->pdgId() == PDGID::PROTON) {
+                        bool GenChecker = Parents[0].first != 0; //checks to make sure that the mother and the penultimate aren't the same. if they are makes the penultimate 0
+                        if (truth_z.z_penultimate1PDG == 666) {
+                            truth_z.z_penultimate1PDG = Parents[0].second->pdgId() * GenChecker;
+                            reco_z.z_penultimate1PDG = Parents[0].second->pdgId() * GenChecker;
+                        } else {
+                            truth_z.z_penultimate2PDG = Parents[0].second->pdgId() * GenChecker;
+                            reco_z.z_penultimate2PDG = Parents[0].second->pdgId() * GenChecker;
+                        }
+                    }
+
+
+                }
+                Parents.pop_front();
+            }
+
+        }
+        //std::cout << "Mom 1: " << reco_z.z_mom1PDG << "  Mom 2: " << reco_z.z_mom2PDG << " Penultimate1PDG: " << reco_z.z_penultimate1PDG << " and the second is: " << reco_z.z_penultimate2PDG << std::endl;
         // Continue only if all particles have been found
         if (z_boson != nullptr && electron_0 != nullptr && electron_1 != nullptr) {
             // We set electron_0 to the higher pt electron
@@ -765,7 +809,7 @@ namespace zf {
             truth_z.nakedPhistar = ReturnPhistar(e0_truth->nakedEta(), e0_truth->nakedPhi(), e1_truth->nakedEta(), e1_truth->nakedPhi());
             truth_z.eta = z_boson->eta();
             truth_z.deltaR = deltaR(e0_truth->eta(), e0_truth->phi(), e1_truth->eta(), e1_truth->phi());
-      //Creating bare and born y values
+            //Creating bare and born y values
             const double ELECTRON_MASS = 5.109989e-4;
             math::PtEtaPhiMLorentzVector e0lvBorn(e0_truth->bornPt(), e0_truth->bornEta(), e0_truth->bornPhi(), ELECTRON_MASS);
             math::PtEtaPhiMLorentzVector e1lvBorn(e1_truth->bornPt(), e1_truth->bornEta(), e1_truth->bornPhi(), ELECTRON_MASS);
@@ -778,12 +822,12 @@ namespace zf {
             zlvNaked = e0lvNaked + e1lvNaked;
             truth_z.yBorn = zlvBorn.Rapidity();
             truth_z.yNaked = zlvNaked.Rapidity();
-      
-        
+
+
         }
     }
 
-    void ZFinderEvent::InitTrigger(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    void ZFinderEvent::InitTrigger(const edm::Event& iEvent, const edm::EventSetup & iSetup) {
         // Get the trigger objects that are closest in dR to our reco electrons
         if (e0 != nullptr && e1 != nullptr) {
             const trigger::TriggerObject* trig_obj_0 = GetBestMatchedTriggerObject(iEvent, ALL_TRIGGERS, e0->eta(), e0->phi());
@@ -801,32 +845,32 @@ namespace zf {
         }
     }
 
-    ZFinderElectron* ZFinderEvent::AddRecoElectron(reco::GsfElectron electron) {
+    ZFinderElectron * ZFinderEvent::AddRecoElectron(reco::GsfElectron electron) {
         ZFinderElectron* zf_electron = new ZFinderElectron(electron);
         reco_electrons_.push_back(zf_electron);
         return zf_electron;
     }
 
-    ZFinderElectron* ZFinderEvent::AddRecoElectron(reco::RecoEcalCandidate electron) {
+    ZFinderElectron * ZFinderEvent::AddRecoElectron(reco::RecoEcalCandidate electron) {
         ZFinderElectron* zf_electron = new ZFinderElectron(electron);
         reco_electrons_.push_back(zf_electron);
         return zf_electron;
     }
 
-    ZFinderElectron* ZFinderEvent::AddRecoElectron(reco::Photon electron) {
+    ZFinderElectron * ZFinderEvent::AddRecoElectron(reco::Photon electron) {
         ZFinderElectron* zf_electron = new ZFinderElectron(electron);
         reco_electrons_.push_back(zf_electron);
         return zf_electron;
     }
 
-    ZFinderElectron* ZFinderEvent::AddTruthElectron(reco::GenParticle electron) {
+    ZFinderElectron * ZFinderEvent::AddTruthElectron(reco::GenParticle electron) {
         ZFinderElectron* zf_electron = new ZFinderElectron(electron);
         truth_electrons_.push_back(zf_electron);
         return zf_electron;
     }
     //the trifecto version:
 
-    ZFinderElectron* ZFinderEvent::AddTruthElectron(reco::GenParticle bornElectron,
+    ZFinderElectron * ZFinderEvent::AddTruthElectron(reco::GenParticle bornElectron,
             reco::GenParticle dressedElectron,
             reco::GenParticle nakedElectron) {
         ZFinderElectron* zf_electron = new ZFinderElectron(bornElectron, dressedElectron, nakedElectron);
@@ -834,13 +878,13 @@ namespace zf {
         return zf_electron;
     }
 
-    ZFinderElectron* ZFinderEvent::AddHLTElectron(trigger::TriggerObject electron) {
+    ZFinderElectron * ZFinderEvent::AddHLTElectron(trigger::TriggerObject electron) {
         ZFinderElectron* zf_electron = new ZFinderElectron(electron);
         hlt_electrons_.push_back(zf_electron);
         return zf_electron;
     }
 
-    const reco::GenParticle* ZFinderEvent::GetNakedElectron(const reco::GenParticle * const BORN_ELECTRON) {
+    const reco::GenParticle * ZFinderEvent::GetNakedElectron(const reco::GenParticle * const BORN_ELECTRON) {
         const reco::GenParticle* naked_electron = BORN_ELECTRON;
         // We walk down the tree of decays, grabbing the electron in the decay
         // each time until we come to a"status() == 1" electron, meaning it is
@@ -864,7 +908,7 @@ namespace zf {
         return naked_electron;
     }
 
-    const reco::GenParticle* ZFinderEvent::GetDressedElectron(
+    const reco::GenParticle * ZFinderEvent::GetDressedElectron(
             const reco::GenParticle * const BORN_ELECTRON,
             const reco::GenParticle * const NAKED_ELECTRON,
             const double MAX_DELTA_R
@@ -896,7 +940,7 @@ namespace zf {
                 // If we find electron, we save it as the next item to recurse over
                 if (fabs(test_particle->pdgId()) == PDGID::ELECTRON) {
                     swap_electron = dynamic_cast<const reco::GenParticle*> (test_particle);
-                }                    // If we find a photon, add its 4 vector if it is within some
+                }// If we find a photon, add its 4 vector if it is within some
                     // distance of the naked electron
                 else if (fabs(test_particle->pdgId()) == PDGID::PHOTON) {
                     const double DELTA_R = deltaR(test_particle->eta(), test_particle->phi(), NAKED_ELECTRON->eta(), NAKED_ELECTRON->phi());
@@ -954,7 +998,7 @@ namespace zf {
         return ( 1 / cosh(DETA / 2)) * (1 / tan(dphi / 2));
     }
 
-    void ZFinderEvent::PrintCuts(ZFinderElectron* zf_elec) {
+    void ZFinderEvent::PrintCuts(ZFinderElectron * zf_elec) {
         using std::cout;
         using std::endl;
         // Print all the cuts of the given zf_elec
@@ -1038,7 +1082,7 @@ namespace zf {
         return tmp_vec;
     }
 
-    std::vector<ZFinderElectron*>* ZFinderEvent::FilteredElectrons(const std::string& cut_name) {
+    std::vector<ZFinderElectron*>* ZFinderEvent::FilteredElectrons(const std::string & cut_name) {
         /*
          * Return all electrons that pass a specified cut
          */
@@ -1052,7 +1096,7 @@ namespace zf {
         return tmp_vec;
     }
 
-    bool ZFinderEvent::ZDefPassed(const std::string& NAME) const {
+    bool ZFinderEvent::ZDefPassed(const std::string & NAME) const {
         /*
          * Try to find the ZDef name in the map, if it exists return the pass
          * value, else return false.
@@ -1093,7 +1137,7 @@ namespace zf {
         }
     }
 
-    const cutlevel_vector* ZFinderEvent::GetZDef(const std::string& NAME) const {
+    const cutlevel_vector * ZFinderEvent::GetZDef(const std::string & NAME) const {
         std::map<std::string, cutlevel_vector>::const_iterator it = zdef_map_.find(NAME);
         if (it != zdef_map_.end()) {
             return &(it->second);
@@ -1102,7 +1146,7 @@ namespace zf {
         }
     }
 
-    const trig_dr_vec* ZFinderEvent::GetMatchedTriggerObjects(
+    const trig_dr_vec * ZFinderEvent::GetMatchedTriggerObjects(
             const edm::Event& iEvent,
             const std::vector<std::string>& trig_names,
             const double ETA, const double PHI, const double DR_CUT
@@ -1152,7 +1196,7 @@ namespace zf {
         return out_v;
     }
 
-    const trigger::TriggerObject* ZFinderEvent::GetBestMatchedTriggerObject(
+    const trigger::TriggerObject * ZFinderEvent::GetBestMatchedTriggerObject(
             const edm::Event& iEvent,
             const std::vector<std::string>& trig_names,
             const double ETA, const double PHI
@@ -1225,7 +1269,7 @@ namespace zf {
                 electron_to_correct->set_phi(electron_to_correct->phi() + ADDITIVE_CORRECTION);
                 electron_to_correct->AddCutResult("nt_corrected", true, WEIGHT);
                 return;
-            }                // No GSF to use to correct
+            }// No GSF to use to correct
             else {
                 electron_to_correct->AddCutResult("nt_corrected", false, WEIGHT);
                 return;
