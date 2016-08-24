@@ -135,7 +135,7 @@ int main() {
     if (debug)cout << "test 4" << endl;
     RooRealVar gamma("gamma", "gamma", 0.01, 0.0001, 0.03);
     // Delta controls the ratio of the slope of the two sides, as well as the
-    // smoothness of the peak
+    // smoothness of the peakmu
     if (debug)cout << "test 5" << endl;
     RooRealVar delta("delta", "delta", 40., 10, 80.);
 
