@@ -107,11 +107,11 @@ namespace zf {
         reco_.z_m = zf_event.reco_z.m;
         //reco_.z_y = zf_event.reco_z.y;
         reco_.z_y = .15;
-        std::cout<<"TREE Mom 1: "<<zf_event.reco_z.z_mom1PDG<<"  Mom 2: "<<zf_event.reco_z.z_mom2PDG<<" Penultimate1PDG: "<<zf_event.reco_z.z_penultimate1PDG<<" and the second is: "<<zf_event.reco_z.z_penultimate2PDG<<std::endl;
+        //std::cout<<"TREE Mom 1: "<<zf_event.reco_z.z_mom1PDG<<"  Mom 2: "<<zf_event.reco_z.z_mom2PDG<<" Penultimate1PDG: "<<zf_event.reco_z.z_penultimate1PDG<<" and the second is: "<<zf_event.reco_z.z_penultimate2PDG<<std::endl;
         reco_.z_mom1PDG = zf_event.reco_z.z_mom1PDG;
         reco_.z_mom2PDG = zf_event.reco_z.z_mom2PDG;
         reco_.z_penultimate1PDG = zf_event.reco_z.z_penultimate1PDG;
-        reco_.z_penultimate1PDG = zf_event.reco_z.z_penultimate1PDG;
+        reco_.z_penultimate2PDG = zf_event.reco_z.z_penultimate2PDG;
 
         reco_.z_yNaked = zf_event.reco_z.yNaked;
         reco_.z_yBorn = zf_event.reco_z.yBorn;

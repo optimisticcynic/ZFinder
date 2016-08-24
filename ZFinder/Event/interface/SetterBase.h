@@ -11,11 +11,11 @@ namespace zf {
         public:
             // Constructor
             SetterBase() { }
+            virtual ~SetterBase() { }
 
             // Call this method on your ZFinderEvent and it will set cut for
             // all electrons using the SetCut_ method
             virtual void SetCuts(ZFinderEvent* zf_event);
-
         protected:
             virtual void SetCut_(ZFinderElectron* zf_elec) = 0;
     };
