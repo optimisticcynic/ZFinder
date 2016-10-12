@@ -230,7 +230,7 @@ namespace zf {
         // Calcuate weights for different PDF sets
         if (run_pdf_weights_) {
             //edm::InputTag pdfWeightTag_cteq("pdfWeights:cteq6ll"); // or any other PDF set
-            edm::InputTag pdfWeightTag_cteq("pdfWeights:CT10"); // or any other PDF set
+            edm::InputTag pdfWeightTag_cteq("pdfWeights:CT10nlo"); // or any other PDF set
             edm::Handle<std::vector<double> > weightHandle_cteq;
             iEvent.getByLabel(pdfWeightTag_cteq, weightHandle_cteq);
             weights_cteq = (*weightHandle_cteq);
@@ -380,9 +380,9 @@ namespace zf {
             //const double ISO_NH =0;
             // test ID
             // working points
-            ElectronEffectiveArea::ElectronEffectiveAreaTarget TargetValue=ElectronEffectiveArea::kEleEAData2011;//Added due to upgrade to PassWP requireing and effectivearea
+            ElectronEffectiveArea::ElectronEffectiveAreaTarget TargetValue = ElectronEffectiveArea::kEleEAData2011; //Added due to upgrade to PassWP requireing and effectivearea
             const bool VETO = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO, TargetValue);
-            const bool LOOSE = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO ,TargetValue);
+            const bool LOOSE = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO, TargetValue);
             const bool MEDIUM = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO, TargetValue);
             const bool TIGHT = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO, TargetValue);
 
@@ -752,12 +752,48 @@ namespace zf {
 
         std::deque<std::pair<int, const reco::GenParticle*> > Parents;
         Parents.push_back(std::make_pair(0, z_boson));
+        if (z_boson != nullptr) {
+            if (Parents[0].second->pdgId() != z_boson->pdgId())std::cout << "WE ARE BROKE" << std::endl;
+            if (Parents[0].second->pdgId() == PDGID::ZBOSON && electron_0 != nullptr && electron_1 != nullptr) {
+                if (Parents[0].second->numberOfMothers() == 2) {
+                    //if (Parents[0].second->mother(0)->pdgId() == 21 && Parents[0].second->mother(1)->pdgId() == 21) {
+                    //    std::cout << "the mothers are a gluon pair" << std::endl;
+                    //    for (size_t i = 0; i < Parents[0].second->mother(0)->numberOfDaughters(); i++) {
+                    //        if(Parents[0].second->mother(0)->daughter(i)->pdgId()!=21)std::cout<<"Sisters on 0 side Energy are: "<<Parents[0].second->mother(0)->daughter(i)->energy()<<std::endl;
+                    //    }
+                    //    for (size_t i = 0; i < Parents[0].second->mother(1)->numberOfDaughters(); i++) {
+                    //        if(Parents[0].second->mother(1)->daughter(i)->pdgId()!=21)std::cout<<"Sisters on 1 side are: "<<Parents[0].second->mother(1)->daughter(i)->energy()<<std::endl;
+                    //    }
+                    //}
+                    if (Parents[0].second->mother(0)->pdgId() != -Parents[0].second->mother(1)->pdgId()) {
+                        if (Parents[0].second->mother(0)->pdgId() != 21 && Parents[0].second->mother(1)->pdgId() != 21) {
 
+                            std::cout << "Quarks don't match, Quark1: " << Parents[0].second->mother(0)->pdgId() << " Quark2: " << Parents[0].second->mother(1)->pdgId() << std::endl;
+                            for (size_t i = 0; i < Parents[0].second->mother(0)->numberOfDaughters(); i++) {
+                                if (Parents[0].second->mother(0)->daughter(i)->pdgId() != 21)std::cout << "Sisters on 0 side PDGID are: " << Parents[0].second->mother(0)->daughter(i)->pdgId() << std::endl;
+                            }
+                            for (size_t i = 0; i < Parents[0].second->mother(1)->numberOfDaughters(); i++) {
+                                if (Parents[0].second->mother(1)->daughter(i)->pdgId() != 21)std::cout << "Sisters on 1 side are: " << Parents[0].second->mother(1)->daughter(i)->pdgId() << std::endl;
+                            }
+
+                        }
+
+                    }
+
+                    if (Parents[0].second->mother(0)->pdgId() != -Parents[0].second->mother(1)->pdgId()) {
+                        // std::cout<<"Stuff doesn't match, Part 1 :"<<Parents[0].second->mother(0)->pdgId()<<" part 2 is "<<Parents[0].second->mother(1)->pdgId()<<std::endl;
+                    }
+                }
+            }
+        }
         if (z_boson != nullptr && electron_0 != nullptr && electron_1 != nullptr) {//Used to find parents of Z. for testing purposes. will remove
             while (Parents.size() > 0) {
                 for (size_t Mothers = 0; Mothers < Parents[0].second->numberOfMothers(); Mothers++) {
                     Parents.push_back(std::make_pair(1 + Parents[0].first, (reco::GenParticle*) Parents[0].second->mother(Mothers)));
                     if (Parents[0].first == 0) {
+                        if (Parents[0].second->mother(0)->pdgId() == 21 && Mothers == 0) {
+                            //std::cout<<" our fill mothers are "<<Parents[0].second->mother(0)->pdgId()<<" and "<<Parents[0].second->mother(1)->pdgId()<<std::endl;
+                        }
                         if (truth_z.z_mom1PDG == 666) {//666 is not filled
                             truth_z.z_mom1PDG = Parents[0].second->mother(Mothers)->pdgId();
                             reco_z.z_mom1PDG = Parents[0].second->mother(Mothers)->pdgId();
