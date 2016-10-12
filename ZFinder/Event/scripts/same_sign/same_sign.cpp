@@ -143,8 +143,7 @@ histogram_map Get2DHistoMap(double Ymin = 0, double YMax = 2.4) {
         //else files_to_open["Signal"] = "/data/whybee0a/user/lesko_2/fermi/Output/Zfinder2MCPDFweightBorn15-7-2/Powheg15-7-04.root";
     else files_to_open["Signal"] = "/data/whybee0a/user/lesko_2/fermi/NewMC/ZfinderPOWHEGBornNoMassCuts2016-01-14/POWwithAllYBornNoMass.root";
     // The Tree to access
-    const std::string TREE_NAME =
-            "ZFinder/Combined Single Reco/Combined Single Reco";
+    const std::string TREE_NAME = "ZFinder/Combined Single Reco/Combined Single Reco";
 
     // Open the files and fill the file map
     histogram_map output_map;
@@ -182,8 +181,8 @@ histogram_map Get2DHistoMap(double Ymin = 0, double YMax = 2.4) {
 
         // Pack into a hitogram
         TH2D* histo;
-        if(SeperateYs)histo= new TH2D("phistar_and_mass", "Phistar Vs. Mass;#phi*;m_{ee}", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0], 42, 0, 252);
-        else histo= new TH2D("phistar_and_mass", "Phistar Vs. Mass;#phi*;m_{ee}", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0], 50, 0, 300);
+        if (SeperateYs)histo = new TH2D("phistar_and_mass", "Phistar Vs. Mass;#phi*;m_{ee}", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0], 42, 0, 252);
+        else histo = new TH2D("phistar_and_mass", "Phistar Vs. Mass;#phi*;m_{ee}", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0], 50, 0, 300);
         for (int i = 0; i < tree->GetEntries(); i++) {
             tree->GetEntry(i);
             if (Ymin > fabs(Zrapidity->GetValue()) || YMax < fabs(Zrapidity->GetValue()))continue;
@@ -244,12 +243,12 @@ TH1D* Get1DFromBin(TH2D* histo, const int BIN, const std::string PREFIX) {
     return out_histo;
 }
 
-std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, const std::string BIN, const std::string PHISTAR_RANGE, TH1D* fake_zmass, double MaxY = 2.4, double MinY = 0) {
+std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, const std::string BIN, const std::string PHISTAR_RANGE, TH1D* fake_zmass, TH1D* RatioPlot, unsigned int PhiBin, double MaxY = 2.4, double MinY = 0) {
     using namespace RooFit;
     // The X value of the histogram
-    double ZMax =0;
-    if(SeperateYs)ZMax=252;
-    else ZMax=300;
+    double ZMax = 0;
+    if (SeperateYs)ZMax = 252;
+    else ZMax = 300;
     RooRealVar z_mass("z_mass", "m_{ee}", 0, ZMax, "GeV");
     z_mass.setRange("signal", 60., 120.);
 
@@ -274,7 +273,7 @@ std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, cons
     RooRealVar nbkg("nbkg", "nbkg", 1000, 0.0, 1000000);
 
 
-    RooAddPdf combined_pdf("combined_pdf", "combined_pdf", RooArgList(signalpdf, MyBackgroundPdf), RooArgList(nsig,nbkg));
+    RooAddPdf combined_pdf("combined_pdf", "combined_pdf", RooArgList(signalpdf, MyBackgroundPdf), RooArgList(nsig, nbkg));
     //RooAddPdf combined_pdf("combined_pdf", "combined_pdf", RooArgList(signalpdf, MyBackgroundPdf), RooArgList(sigratio));
     // Fit, but without yelling please
     std::cout << std::endl;
@@ -355,20 +354,24 @@ std::pair<double, double> FitForQCD(TH1D* data_histo, TH1D* template_histo, cons
     ////Nicoles changes
     RooAbsReal* fracIntNic = MyBackgroundPdf.createIntegral(z_mass);
     RooAbsReal* fracIntSNic = MyBackgroundPdf.createIntegral(z_mass, NormSet(z_mass), Range("signal"));
-    double NicolesResult = nbkg.getVal()*fracIntSNic->getVal();
-    double NicoleErrorSquared = fracIntSNic->getVal()*fracIntSNic->getVal()*nbkg.getPropagatedError(*fit_result)*nbkg.getPropagatedError(*fit_result);
-    NicoleErrorSquared += fracIntSNic->getPropagatedError(*fit_result)*fracIntSNic->getPropagatedError(*fit_result)*nbkg.getVal()*nbkg.getVal();
+    double NicolesResult = nbkg.getVal() * fracIntSNic->getVal();
+    double NicoleErrorSquared = fracIntSNic->getVal() * fracIntSNic->getVal() * nbkg.getPropagatedError(*fit_result) * nbkg.getPropagatedError(*fit_result);
+    NicoleErrorSquared += fracIntSNic->getPropagatedError(*fit_result) * fracIntSNic->getPropagatedError(*fit_result) * nbkg.getVal() * nbkg.getVal();
     double NicoleError = sqrt(NicoleErrorSquared);
-    cout << "Alpha: " << alpha.getVal() << " Delta: " << delta.getVal() << " And Gamma: " << gamma.getVal() << "  nsig: " << nsig.getVal()<<" nbkg: "<< nbkg.getVal()<< " fracIntTotal is: " << fracIntTotal->getVal() << "  Total Data is " << data_histo->Integral() << endl;
+    cout << "Alpha: " << alpha.getVal() << " Delta: " << delta.getVal() << " And Gamma: " << gamma.getVal() << "  nsig: " << nsig.getVal() << " nbkg: " << nbkg.getVal() << " fracIntTotal is: " << fracIntTotal->getVal() << "  Total Data is " << data_histo->Integral() << endl;
     //RooRealVar StupidTest("Stupid", "Stupid", 0, 10, 300);
     //StupidTest.setVal(87.9932);
     //cout << "Stupid TEst is " << MyBackgroundPdf.getVal(StupidTest) << endl;
     //cout << "Zachary Bin: " << BIN << " Sig ratio: " << sigratio.getVal() << " Fraction intigral " << fracInt->getVal() << " Data Intigral: " << data_histo->Integral() << "Signal PDF int: " << endl;
     //cout<<"NICOLES RESULT IS "<<NicolesResult<<" AND THE OTHER THING IS "<<fracInt->getVal()<<endl;
+    RatioPlot->SetBinContent(PhiBin, nsig.getVal() / (nbkg.getVal() + nsig.getVal()));
+    double UncertaintyRatio = sqrt((pow(nsig.getVal() * nbkg.getError(), 2) + pow(nbkg.getVal() * nsig.getError(), 2)) / pow(nsig.getVal() + nbkg.getVal(), 4));
+    RatioPlot->SetBinError(PhiBin, UncertaintyRatio);
+    if(NicoleError>100*NicolesResult)NicoleError=10;
     return
     {
         //fracInt->getVal(), fracInt->getPropagatedError(*fit_result)
-                NicolesResult,NicoleError
+        NicolesResult, NicoleError
     };
 }
 
@@ -429,8 +432,9 @@ void MakePhistarPlot(TH1D* histo, int Yindex = 0) {
 
 int main() {
     // Get a map of the histograms of the Z Masses
-
+    SetPlotStyle();
     for (unsigned int Yindex = 0; Yindex < nYSeper && (SeperateYs || Yindex == 0); Yindex++) {
+
         // Write and draw the histos
         histogram_map histo2d;
         if (SeperateYs) histo2d = Get2DHistoMap(YSeperations[Yindex], YSeperations[Yindex + 1]);
@@ -443,6 +447,8 @@ int main() {
         TH1D* qcd_phistar_histo = new TH1D("phistar", "QCD Phistar;#phi*;counts", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0]);
         TH1D* fake_zmass = new TH1D("z_mass_all", "z_mass_all", 120, 60., 120.);
         qcd_phistar_histo->Sumw2();
+        TH1D* RatioPlot = new TH1D("nsigOverntot", "QCD nsig/(nsig+nbkg);#phi*;counts", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0]);
+        RatioPlot->Sumw2();
         for (unsigned int i = 1; i < zf::ATLAS_PHISTAR_BINNING.size(); ++i) {
             if (debug && i != 1)continue;
             // Get histograms for each phistar bin
@@ -466,8 +472,8 @@ int main() {
             std::ostringstream convert2;
             convert2 << std::setw(2) << std::setfill('0') << i;
             std::pair<double, double> fit_result;
-            if (SeperateYs) fit_result = FitForQCD(data_histo_Test, template_histo_Test, convert2.str(), PHISTART_BINNING, fake_zmass, YSeperations[Yindex + 1], YSeperations[Yindex]);
-            else fit_result = FitForQCD(data_histo_Test, template_histo_Test, convert2.str(), PHISTART_BINNING, fake_zmass);
+            if (SeperateYs) fit_result = FitForQCD(data_histo_Test, template_histo_Test, convert2.str(), PHISTART_BINNING, fake_zmass, RatioPlot, i, YSeperations[Yindex + 1], YSeperations[Yindex]);
+            else fit_result = FitForQCD(data_histo_Test, template_histo_Test, convert2.str(), PHISTART_BINNING, fake_zmass, RatioPlot, i);
             // Fill the background histogram
             qcd_phistar_histo->SetBinContent(i, fit_result.first);
             qcd_phistar_histo->SetBinError(i, fit_result.second);
@@ -519,17 +525,71 @@ int main() {
         output_file.cd("qcd");
         qcd_phistar_histo->Write();
         fake_zmass->Write();
+        RatioPlot->Write();
         //TH1D* Crazy=qcd_phistar_histo->Clone();
 
+        output_file.cd();
+        output_file.mkdir("QCDCorrected");
+        output_file.cd("QCDCorrected");
 
+        TH1D* qcd_phistar_histoCorrectA = new TH1D("phistarCorrectByRatio", "QCD Phistar Corrected;#phi*;counts", zf::ATLAS_PHISTAR_BINNING.size() - 1, &zf::ATLAS_PHISTAR_BINNING[0]); //This is corrected by taking the ratio of the corrected over normal and multipling by original
+        double CorRatio = (2 * RatioPlot->GetBinContent(1) + RatioPlot->GetBinContent(2)) / 3;
+        double CorQCD = CorRatio / RatioPlot->GetBinContent(1) * qcd_phistar_histo->GetBinContent(1);
+        qcd_phistar_histoCorrectA->SetBinContent(1, CorQCD);
+
+        double a = RatioPlot->GetBinContent(1);
+        double b = RatioPlot->GetBinContent(1);
+        double c = RatioPlot->GetBinContent(2);
+        double d = qcd_phistar_histo->GetBinContent(1);
+        double sa = RatioPlot->GetBinError(1);
+        double sb = RatioPlot->GetBinError(1);
+        double sc = RatioPlot->GetBinError(2);
+        double sd = qcd_phistar_histo->GetBinError(1);
+
+        double BinError = 0;
+        BinError = sqrt((d * d*((a + c)*(a + c) * sb * sb + b * b*(sa * sa + sc * sc)) + b * b * (a + b + c)*(a + b + c) *sd * sd) / pow(b, 4));//propegating error. I am so so sorry
+        qcd_phistar_histoCorrectA->SetBinError(1, BinError);
+
+
+
+        CorRatio = (2 * RatioPlot->GetBinContent(nphistar) + RatioPlot->GetBinContent(nphistar - 1)) / 3;
+        CorQCD = CorRatio / RatioPlot->GetBinContent(nphistar) * qcd_phistar_histo->GetBinContent(nphistar);
+        qcd_phistar_histoCorrectA->SetBinContent(nphistar, CorQCD);
+
+        a = RatioPlot->GetBinContent(nphistar - 1);
+        b = RatioPlot->GetBinContent(nphistar);
+        c = RatioPlot->GetBinContent(nphistar);
+        d = qcd_phistar_histo->GetBinContent(nphistar);
+        sa = RatioPlot->GetBinError(nphistar - 1);
+        sb = RatioPlot->GetBinError(nphistar);
+        sc = RatioPlot->GetBinError(nphistar);
+        sd = qcd_phistar_histo->GetBinError(nphistar);
+        BinError = sqrt((d * d*((a + c)*(a + c) * sb * sb + b * b*(sa * sa + sc * sc)) + b * b * (a + b + c)*(a + b + c)* sd * sd) / pow(b, 4));
+        qcd_phistar_histoCorrectA->SetBinError(nphistar, BinError);
+
+        for (size_t PhiBin = 2; PhiBin < nphistar; PhiBin++) {
+            CorRatio = (RatioPlot->GetBinContent(PhiBin + 1) + RatioPlot->GetBinContent(PhiBin) + RatioPlot->GetBinContent(PhiBin - 1)) / 3;
+            CorQCD = CorRatio / RatioPlot->GetBinContent(PhiBin) * qcd_phistar_histo->GetBinContent(PhiBin);
+            qcd_phistar_histoCorrectA->SetBinContent(PhiBin, CorQCD);
+
+            a = RatioPlot->GetBinContent(PhiBin - 1);
+            b = RatioPlot->GetBinContent(PhiBin);
+            c = RatioPlot->GetBinContent(PhiBin+1);
+            d = qcd_phistar_histo->GetBinContent(PhiBin);
+            sa = RatioPlot->GetBinError(PhiBin - 1);
+            sb = RatioPlot->GetBinError(PhiBin);
+            sc = RatioPlot->GetBinError(PhiBin+1);
+            sd = qcd_phistar_histo->GetBinError(PhiBin);
+
+            BinError = sqrt((d * d*((a + c)*(a + c) * sb * sb + b * b*(sa * sa + sc * sc)) + b * b * (a + b + c)*(a + b + c)* sd * sd) / pow(b, 4));
+            if(BinError>100)BinError=20;
+            qcd_phistar_histoCorrectA->SetBinError(PhiBin, BinError);
+        }
 
         MakePhistarPlot(qcd_phistar_histo, Yindex);
 
         output_file.Write();
         output_file.Close();
-
     }
     return EXIT_SUCCESS;
 }
-
-

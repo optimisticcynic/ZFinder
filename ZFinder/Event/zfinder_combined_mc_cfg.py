@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input file
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring('/store/mc/Summer12_DR53X/DYToEE_M-20_CT10_TuneZ2star_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/AC6646E7-36F0-E111-B2F8-00259073E3FC.root')
+        fileNames = cms.untracked.vstring('file:/hdfs/cms/phedex/store/mc/Summer13dr53X/QCD_Pt-15to3000_TuneZ2star_Flat_13TeV-pythia6/GEN-SIM-RAW/PU25bx25_START53_V19D-v1/10000/023BCD50-2BE5-E211-B054-485B39800BC0.root')
         )
 
 # Output file
@@ -90,8 +90,8 @@ process.ZFinder = ZFinder.clone(
 # RUN
 process.p = cms.Path(
         process.pdfWeights
-        * process.fsrWeight
-        * process.kt6PFJetsForIsolation
+        *process.fsrWeight
+        *process.kt6PFJetsForIsolation
         * process.eleRegressionEnergy
         * process.CalibratedElectrons
         * process.pfiso
