@@ -7,7 +7,7 @@ ROO_INCLUDES=${ROOT_ALL} -I${ROOFITSYS}/include -L${ROOFITSYS}/lib -lRooFit -lRo
 CC=g++ -O2 -g -std=c++0x -Wall
 CCC=${CC} -c
 
-all: MomPDFPlots.exe MomRapidityPDFPlots.exe
+all: MomPDFPlots.exe MomRapidityPDFPlots.exe FitPDFPlots.exe
 
 %.exe: %.cpp
 	${CC} ${ROOT_ALL} ${ROO_INCLUDES} -o $@ $< 

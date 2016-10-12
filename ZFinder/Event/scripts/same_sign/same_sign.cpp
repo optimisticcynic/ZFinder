@@ -40,7 +40,7 @@ const double phistarBins[] = {0.000, 0.004, 0.008, 0.012, 0.016, 0.020, 0.024, 0
 size_t nphistar = (sizeof (phistarBins) / sizeof (phistarBins[0])) - 1;
 
 
-const bool SeperateYs = true;
+const bool SeperateYs = false;
 const double YSeperations[] = {0, .4, .8, 1.2, 1.6, 2.0, 2.4};
 const size_t nYSeper = (sizeof (YSeperations) / sizeof (YSeperations[0])) - 1;
 const bool debug = false;
