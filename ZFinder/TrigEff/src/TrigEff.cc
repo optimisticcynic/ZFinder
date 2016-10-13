@@ -248,7 +248,8 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         const double ISO_NH = (*IsoDepositVals_NH)[ele_ref];
 
         // Check ID working points
-        const bool TIGHT = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO);
+        ElectronEffectiveArea::ElectronEffectiveAreaTarget TargetValue=ElectronEffectiveArea::kEleEAData2011;
+        const bool TIGHT = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO,TargetValue);
 
         // Use only tight electrons
         if (TIGHT) {

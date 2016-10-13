@@ -14,4 +14,5 @@
 <use name="roostats"/>
 <use name="root"/>
 <use name="rootrflx"/>
+<flags CXXFLAGS="-Wno-error=unused-but-set-variable"/>
 <flags EDM_PLUGIN="1"/>
