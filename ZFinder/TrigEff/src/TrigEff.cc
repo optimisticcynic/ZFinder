@@ -9,7 +9,7 @@ Description: [one line class summary]
 
 Implementation:
 [Notes on implementation]
-*/
+ */
 //
 // Original Author:  Alexander Gude
 //         Created:  Wed Sep  3 15:40:32 CDT 2014
@@ -65,43 +65,47 @@ Implementation:
 
 // ROOT
 #include <TH2D.h>
+#include <TH3D.h>
+#include <TLorentzVector.h>
 
 //
 // class declaration
 //
 
 class TrigEff : public edm::EDAnalyzer {
-    public:
-        explicit TrigEff(const edm::ParameterSet&);
-        ~TrigEff();
+public:
+    explicit TrigEff(const edm::ParameterSet&);
+    ~TrigEff();
 
-        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
-    private:
-        virtual void beginJob();
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-        virtual void endJob();
+private:
+    virtual void beginJob();
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endJob();
 
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-        virtual void endRun(edm::Run const&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+    virtual void endRun(edm::Run const&, edm::EventSetup const&);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-        // ----------member data ---------------------------
-        TH2D* numerator_;
-        TH2D* numerator_fine_;
-        TH2D* denominator_;
-        TH2D* denominator_fine_;
-        edm::InputTag ecal_electron_;
-        edm::LumiReWeighting* lumi_weights_;
-        zf::ZEfficiencies scale_factors_;
+    // ----------member data ---------------------------
+    TH2D* numerator_;
+    TH2D* numerator_fine_;
+    TH2D* denominator_;
+    TH2D* denominator_fine_;
+    TH3D* NumeratorAll_;
+    TH3D* DenominatorAll_;
+    edm::InputTag ecal_electron_;
+    edm::LumiReWeighting* lumi_weights_;
+    zf::ZEfficiencies scale_factors_;
 
-        double MIN_MASS_;
-        double MAX_MASS_;
-        double MAX_ETA_;
-        double MIN_PT_;
-        double MAX_DR_;
+    double MIN_MASS_;
+    double MAX_MASS_;
+    double MAX_ETA_;
+    double MIN_PT_;
+    double MAX_DR_;
 
 };
 
@@ -116,6 +120,7 @@ class TrigEff : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
+
 TrigEff::TrigEff(const edm::ParameterSet& iConfig) {
     //now do what ever initialization is needed
     edm::Service<TFileService> fs;
@@ -132,6 +137,10 @@ TrigEff::TrigEff(const edm::ParameterSet& iConfig) {
     const std::vector<double> ETA_BINS = {-2.1, -2.0, -1.556, -1.442, -0.8, 0., 0.8, 1.442, 1.556, 2.0, 2.1};
     const std::vector<double> PT_BINS = {30., 40., 50., 70., 250., 2000.};
     const std::vector<double> PT_BINS_FINE = {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 70., 80., 90., 100., 110., 120., 130., 140., 150.};
+    std::vector<double> MassBins;
+    for (int i = 0; i < 120; i++) {
+        MassBins.push_back(60.0 + i * .5);
+    }
 
     numerator_ = fs->make<TH2D>("numerator", "numerator", PT_BINS.size() - 1, &PT_BINS[0], ETA_BINS.size() - 1, &ETA_BINS[0]);
     numerator_->GetYaxis()->SetTitle("Probe #eta");
@@ -146,13 +155,16 @@ TrigEff::TrigEff(const edm::ParameterSet& iConfig) {
     denominator_fine_->GetYaxis()->SetTitle("Probe #eta");
     denominator_fine_->GetXaxis()->SetTitle("Probe p_{T}");
 
+    NumeratorAll_ = fs->make<TH3D>("NumeratorAll", "NumeratorAll", PT_BINS.size() - 1, &PT_BINS[0], ETA_BINS.size() - 1, &ETA_BINS[0], MassBins.size(), &MassBins[0]);
+    DenominatorAll_ = fs->make<TH3D>("DenominatorAll", "DenominatorAll", PT_BINS.size() - 1, &PT_BINS[0], ETA_BINS.size() - 1, &ETA_BINS[0], MassBins.size(), &MassBins[0]);
+
     // Get config variables
     ecal_electron_ = iConfig.getParameter<edm::InputTag>("ecalElectronsInputTag");
 
     // Lumi reweighting
     lumi_weights_ = new edm::LumiReWeighting(
-            zf::SUMMER12_53X_MC_TRUE_PILEUP,  // MC distribution
-            zf::RUN_2012_ABCD_TRUE_PILEUP     // Data distribution
+            zf::SUMMER12_53X_MC_TRUE_PILEUP, // MC distribution
+            zf::RUN_2012_ABCD_TRUE_PILEUP // Data distribution
             );
 }
 
@@ -168,6 +180,7 @@ TrigEff::~TrigEff() {
 //
 
 // ------------ method called for each event  ------------
+
 void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
@@ -180,7 +193,7 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         // Lumi Weight
         float true_number_of_pileup = -1.;
         std::vector<PileupSummaryInfo>::const_iterator PILEUP_ELEMENT;
-        for(PILEUP_ELEMENT = pileup_info->begin(); PILEUP_ELEMENT != pileup_info->end(); ++PILEUP_ELEMENT) {
+        for (PILEUP_ELEMENT = pileup_info->begin(); PILEUP_ELEMENT != pileup_info->end(); ++PILEUP_ELEMENT) {
             const int BUNCH_CROSSING = PILEUP_ELEMENT->getBunchCrossing();
             if (BUNCH_CROSSING == 0) {
                 true_number_of_pileup = PILEUP_ELEMENT->getTrueNumInteractions();
@@ -230,10 +243,20 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // loop on electrons
     std::vector<reco::GsfElectron> our_electrons;
+    TLorentzVector Electron1;
+    Electron1.SetPxPyPzE(els_h->at(0).px(),els_h->at(0).py(),els_h->at(0).pz(),els_h->at(0).energy());
+    
+   TLorentzVector Electron2;
+    Electron2.SetE(els_h->at(1).energy());
+    Electron2.SetPy(els_h->at(1).py());
+    Electron2.SetPx(els_h->at(1).px());
+    Electron2.SetPz(els_h->at(1).pz());
+    TLorentzVector ZLor = Electron1+Electron2;
+    double ZMass = ZLor.M();
     for (unsigned int i = 0; i < els_h->size(); ++i) {
         // Get the electron and set put it into the electrons vector
         reco::GsfElectron electron = els_h->at(i);
-
+       
         // Check the pt and eta
         if (electron.pt() < MIN_PT_ || fabs(electron.eta()) > MAX_ETA_) {
             continue;
@@ -248,8 +271,8 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         const double ISO_NH = (*IsoDepositVals_NH)[ele_ref];
 
         // Check ID working points
-        ElectronEffectiveArea::ElectronEffectiveAreaTarget TargetValue=ElectronEffectiveArea::kEleEAData2011;
-        const bool TIGHT = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO,TargetValue);
+        ElectronEffectiveArea::ElectronEffectiveAreaTarget TargetValue = ElectronEffectiveArea::kEleEAData2011;
+        const bool TIGHT = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele_ref, conversions_h, beamSpot, vtx_h, ISO_CH, ISO_EM, ISO_NH, RHO_ISO, TargetValue);
 
         // Use only tight electrons
         if (TIGHT) {
@@ -282,11 +305,11 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
 
         // Check how many trigger objects we have
-        edm::InputTag hltTrigInfoTag("hltTriggerSummaryAOD","","HLT");
+        edm::InputTag hltTrigInfoTag("hltTriggerSummaryAOD", "", "HLT");
         edm::Handle<trigger::TriggerEvent> trig_event;
 
         iEvent.getByLabel(hltTrigInfoTag, trig_event);
-        if (!trig_event.isValid() ){
+        if (!trig_event.isValid()) {
             std::cout << "No valid hltTriggerSummaryAOD." << std::endl;
             return;
         }
@@ -297,11 +320,11 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         int trig_size = 0;
         edm::InputTag filter_tag("hltEle27WP80TrackIsoFilter", "", "HLT");
         trigger::size_type filter_index = trig_event->filterIndex(filter_tag);
-        if(filter_index < trig_event->sizeFilters()) { // Check that the filter is in triggerEvent
+        if (filter_index < trig_event->sizeFilters()) { // Check that the filter is in triggerEvent
             const trigger::Keys& trig_keys = trig_event->filterKeys(filter_index);
             //std::cout << "Size: " << trig_keys.size() << std::endl;
             trig_size = trig_keys.size();
-            const trigger::TriggerObjectCollection& trig_obj_collection(trig_event->getObjects());
+            const trigger::TriggerObjectCollection & trig_obj_collection(trig_event->getObjects());
             for (auto& i_key : trig_keys) {
                 const trigger::TriggerObject* trig_obj = &trig_obj_collection[i_key];
                 const double DR_0 = deltaR(our_electrons[0].eta(), our_electrons[0].phi(), trig_obj->eta(), trig_obj->phi());
@@ -319,15 +342,19 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if (match_hlt_0) {
             denominator_->Fill(our_electrons[1].pt(), our_electrons[1].eta(), weight);
             denominator_fine_->Fill(our_electrons[1].pt(), our_electrons[1].eta(), weight);
+            DenominatorAll_->Fill(our_electrons[1].pt(), our_electrons[1].eta(), ZMass, weight);
             if (match_hlt_1) {
+                NumeratorAll_->Fill(our_electrons[1].pt(), our_electrons[1].eta(), ZMass, weight);
                 numerator_->Fill(our_electrons[1].pt(), our_electrons[1].eta(), weight);
                 numerator_fine_->Fill(our_electrons[1].pt(), our_electrons[1].eta(), weight);
             }
         }
         if (match_hlt_1) {
+            DenominatorAll_->Fill(our_electrons[0].pt(), our_electrons[0].eta(), ZMass, weight);
             denominator_->Fill(our_electrons[0].pt(), our_electrons[0].eta(), weight);
             denominator_fine_->Fill(our_electrons[0].pt(), our_electrons[0].eta(), weight);
             if (match_hlt_0) {
+                NumeratorAll_->Fill(our_electrons[0].pt(), our_electrons[0].eta(), ZMass, weight);
                 numerator_->Fill(our_electrons[0].pt(), our_electrons[0].eta(), weight);
                 numerator_fine_->Fill(our_electrons[0].pt(), our_electrons[0].eta(), weight);
             }
@@ -337,30 +364,37 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
 // ------------ method called once each job just before starting event loop  ------------
+
 void TrigEff::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
+
 void TrigEff::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
+
 void TrigEff::beginRun(edm::Run const&, edm::EventSetup const&) {
 }
 
 // ------------ method called when ending the processing of a run  ------------
+
 void TrigEff::endRun(edm::Run const&, edm::EventSetup const&) {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
+
 void TrigEff::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
+
 void TrigEff::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+
 void TrigEff::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     //The following says we do not know what parameters are allowed so do no validation
     // Please change this to state exactly what you do use, even if it is no parameters

@@ -15,4 +15,5 @@
 <use name="root"/>
 <use name="rootrflx"/>
 <flags CXXFLAGS="-Wno-error=unused-but-set-variable"/>
+<flags CXXFLAGS="-Wno-error=unused-variable"/>
 <flags EDM_PLUGIN="1"/>
