@@ -68,9 +68,11 @@ Implementation:
 #include <TH3D.h>
 #include <TLorentzVector.h>
 
+#include <iostream>
 //
 // class declaration
 //
+using namespace std;
 
 class TrigEff : public edm::EDAnalyzer {
 public:
@@ -138,8 +140,9 @@ TrigEff::TrigEff(const edm::ParameterSet& iConfig) {
     const std::vector<double> PT_BINS = {30., 40., 50., 70., 250., 2000.};
     const std::vector<double> PT_BINS_FINE = {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 70., 80., 90., 100., 110., 120., 130., 140., 150.};
     std::vector<double> MassBins;
-    for (int i = 0; i < 120; i++) {
-        MassBins.push_back(60.0 + i * .5);
+    for (double i = 0; i < 120; i++) {
+        double FillValue = 60.0 + i * .5;
+        MassBins.push_back(FillValue);
     }
 
     numerator_ = fs->make<TH2D>("numerator", "numerator", PT_BINS.size() - 1, &PT_BINS[0], ETA_BINS.size() - 1, &ETA_BINS[0]);
@@ -155,8 +158,8 @@ TrigEff::TrigEff(const edm::ParameterSet& iConfig) {
     denominator_fine_->GetYaxis()->SetTitle("Probe #eta");
     denominator_fine_->GetXaxis()->SetTitle("Probe p_{T}");
 
-    NumeratorAll_ = fs->make<TH3D>("NumeratorAll", "NumeratorAll", PT_BINS.size() - 1, &PT_BINS[0], ETA_BINS.size() - 1, &ETA_BINS[0], MassBins.size(), &MassBins[0]);
-    DenominatorAll_ = fs->make<TH3D>("DenominatorAll", "DenominatorAll", PT_BINS.size() - 1, &PT_BINS[0], ETA_BINS.size() - 1, &ETA_BINS[0], MassBins.size(), &MassBins[0]);
+    NumeratorAll_ = fs->make<TH3D>("NumeratorAll", "NumeratorAll;PT_bins;Eta_Bins;MassBins", PT_BINS.size() - 1, &PT_BINS[0], ETA_BINS.size() - 1, &ETA_BINS[0], MassBins.size() - 1, &MassBins[0]);
+    DenominatorAll_ = fs->make<TH3D>("DenominatorAll", "DenominatorAll;PT_bins;Eta_Bins;MassBins", PT_BINS.size() - 1, &PT_BINS[0], ETA_BINS.size() - 1, &ETA_BINS[0], MassBins.size() - 1, &MassBins[0]);
 
     // Get config variables
     ecal_electron_ = iConfig.getParameter<edm::InputTag>("ecalElectronsInputTag");
@@ -183,7 +186,6 @@ TrigEff::~TrigEff() {
 
 void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-
     double weight = 1;
     if (!iEvent.isRealData()) {
         // Find the lumi reweighting weight and the natural weight
@@ -201,7 +203,6 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
             }
         }
         weight = lumi_weights_->weight(true_number_of_pileup);
-
         // Natural weight
         edm::Handle<GenEventInfoProduct> gen_event_info;
         iEvent.getByLabel("generator", gen_event_info);
@@ -243,20 +244,22 @@ void TrigEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // loop on electrons
     std::vector<reco::GsfElectron> our_electrons;
-    TLorentzVector Electron1;
-    Electron1.SetPxPyPzE(els_h->at(0).px(),els_h->at(0).py(),els_h->at(0).pz(),els_h->at(0).energy());
-    
-   TLorentzVector Electron2;
-    Electron2.SetE(els_h->at(1).energy());
-    Electron2.SetPy(els_h->at(1).py());
-    Electron2.SetPx(els_h->at(1).px());
-    Electron2.SetPz(els_h->at(1).pz());
-    TLorentzVector ZLor = Electron1+Electron2;
-    double ZMass = ZLor.M();
+    double ZMass = 0;
+    if (els_h->size() == 2) {
+        TLorentzVector Electron1;
+        Electron1.SetPxPyPzE(els_h->at(0).px(), els_h->at(0).py(), els_h->at(0).pz(), els_h->at(0).energy());
+        TLorentzVector Electron2;
+        Electron2.SetE(els_h->at(1).energy());
+        Electron2.SetPy(els_h->at(1).py());
+        Electron2.SetPx(els_h->at(1).px());
+        Electron2.SetPz(els_h->at(1).pz());
+        TLorentzVector ZLor = Electron1 + Electron2;
+        ZMass = ZLor.M();
+    }
     for (unsigned int i = 0; i < els_h->size(); ++i) {
         // Get the electron and set put it into the electrons vector
         reco::GsfElectron electron = els_h->at(i);
-       
+
         // Check the pt and eta
         if (electron.pt() < MIN_PT_ || fabs(electron.eta()) > MAX_ETA_) {
             continue;
