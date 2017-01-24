@@ -768,14 +768,7 @@ namespace zf {
                     if (Parents[0].second->mother(0)->pdgId() != -Parents[0].second->mother(1)->pdgId()) {
                         if (Parents[0].second->mother(0)->pdgId() != 21 && Parents[0].second->mother(1)->pdgId() != 21) {
 
-                            std::cout << "Quarks don't match, Quark1: " << Parents[0].second->mother(0)->pdgId() << " Quark2: " << Parents[0].second->mother(1)->pdgId() << std::endl;
-                            for (size_t i = 0; i < Parents[0].second->mother(0)->numberOfDaughters(); i++) {
-                                if (Parents[0].second->mother(0)->daughter(i)->pdgId() != 21)std::cout << "Sisters on 0 side PDGID are: " << Parents[0].second->mother(0)->daughter(i)->pdgId() << std::endl;
-                            }
-                            for (size_t i = 0; i < Parents[0].second->mother(1)->numberOfDaughters(); i++) {
-                                if (Parents[0].second->mother(1)->daughter(i)->pdgId() != 21)std::cout << "Sisters on 1 side are: " << Parents[0].second->mother(1)->daughter(i)->pdgId() << std::endl;
-                            }
-
+                            
                         }
 
                     }
