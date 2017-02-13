@@ -21,7 +21,7 @@ namespace zf {
 
         // Make the Tree to write to
         tree_ = new TTree(zdef.NAME.c_str(), zdef.NAME.c_str());
-        const std::string CODE = "z_m/D:z_y:z_yNaked:z_yBorn:z_phistar_born:z_phistar_dressed:z_phistar_naked:z_phistar_sc:z_pt:z_eta:e_pt0:e_pt1:e_eta0:e_eta1:e_phi0:e_phi1:e_rnine0:e_rnine1:n_true_pileup:z_mom1PDG/I:z_mom2PDG/I:z_penultimate1PDG/I:z_penultimate2PDG/I:e_charge0/I:e_charge1:n_verts:t0tight/O:t1tight";
+        const std::string CODE = "z_m/D:z_y:z_yNaked:z_yBorn:z_phistar_born:z_phistar_dressed:z_phistar_naked:z_phistar_sc:z_pt:z_eta:e_pt0:e_pt1:e_eta0:e_eta1:e_phi0:e_phi1:e_rnine0:e_rnine1:n_true_pileup:z_mom1PDG/I:z_mom2PDG/I:z_penultimate1PDG/I:z_penultimate2PDG/I:e_charge0/I:e_charge1:n_verts:NumberOfJets/I:t0tight/O:t1tight";
         tree_->Branch("reco", &reco_, CODE.c_str());
         if (IS_MC_) {
             tree_->Branch("truth", &truth_, CODE.c_str());
@@ -159,7 +159,7 @@ namespace zf {
             truth_.z_mom2PDG = zf_event.truth_z.z_mom2PDG;
             truth_.z_penultimate1PDG = zf_event.truth_z.z_penultimate1PDG;
             truth_.z_penultimate2PDG = zf_event.truth_z.z_penultimate2PDG;
-
+            truth_.NumberOfJets = zf_event.truth_z.NumberOfJets;
             if (zf_event.e0_truth != nullptr) {
                 truth_.e_pt[0] = zf_event.e0_truth->pt();
                 truth_.e_eta[0] = zf_event.e0_truth->eta();

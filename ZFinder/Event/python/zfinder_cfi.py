@@ -22,6 +22,7 @@ ZFinder = cms.EDAnalyzer('ZFinder',
         # Used in MC, but still required to be something for data
         pileupInputTag = cms.InputTag("addPileupInfo"),
         generatorInputTag = cms.InputTag("genParticles"),
+        JetInputTag = cms.InputTag("kt6GenJets"),
         # ZDefinitions from ZFinder.ZFinder.zdefinitions_cfi
         ZDefinitions = zdefs_combined_data,
         # Run on MC or not. If true, every ZDefinition is included twice: once
@@ -50,5 +51,5 @@ ZFinder = cms.EDAnalyzer('ZFinder',
         #    - "Bare" or "Naked"
         # Dressed is the default if no answer is provided, or an incorrect one
         # is used.
-        gen_electrons = cms.string("Dressed"),
+        gen_electrons = cms.string("Born"),
         )
