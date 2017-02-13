@@ -98,6 +98,7 @@ namespace zf {
             int z_penultimate2PDG; //Initial particle for Z mom 2
             int e_charge[2];
             int n_verts;
+            int NumberOfJets;
             bool t0tight;
             bool t1tight;
         } reco_, truth_;

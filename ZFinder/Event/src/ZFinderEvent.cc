@@ -76,6 +76,8 @@ namespace zf {
         // Truth
         inputtags_.pileup = iConfig.getParameter<edm::InputTag>("pileupInputTag");
         inputtags_.generator = iConfig.getParameter<edm::InputTag>("generatorInputTag");
+        inputtags_.JetName = iConfig.getParameter<edm::InputTag>("JetInputTag");
+
 
         // Use the muon acceptance requirements to select electrons before
         // making Zs
@@ -230,7 +232,8 @@ namespace zf {
         // Calcuate weights for different PDF sets
         if (run_pdf_weights_) {
             //edm::InputTag pdfWeightTag_cteq("pdfWeights:cteq6ll"); // or any other PDF set
-            edm::InputTag pdfWeightTag_cteq("pdfWeights:CT10nlo"); // or any other PDF set
+            //edm::InputTag pdfWeightTag_cteq("pdfWeights:CT10nlo"); // or any other PDF set
+            edm::InputTag pdfWeightTag_cteq("pdfWeights:CT10");//Madgraph?
             edm::Handle<std::vector<double> > weightHandle_cteq;
             iEvent.getByLabel(pdfWeightTag_cteq, weightHandle_cteq);
             weights_cteq = (*weightHandle_cteq);
@@ -639,6 +642,7 @@ namespace zf {
         truth_z.z_mom2PDG = 666;
         truth_z.z_penultimate1PDG = 666;
         truth_z.z_penultimate2PDG = 666;
+        truth_z.NumberOfJets = -1;
 
         // Electrons
         e0 = nullptr;
@@ -686,6 +690,12 @@ namespace zf {
          */
         edm::Handle<reco::GenParticleCollection> mc_particles;
         iEvent.getByLabel(inputtags_.generator, mc_particles);
+
+        edm::Handle<reco::GenJetCollection> gen_jets;
+        iEvent.getByLabel(inputtags_.JetName, gen_jets);
+        std::cout << "and the number of jets is " << gen_jets->size() << std::endl;
+
+
 
         /* Finding the Z and daughter electrons
          *
@@ -768,7 +778,7 @@ namespace zf {
                     if (Parents[0].second->mother(0)->pdgId() != -Parents[0].second->mother(1)->pdgId()) {
                         if (Parents[0].second->mother(0)->pdgId() != 21 && Parents[0].second->mother(1)->pdgId() != 21) {
 
-                            
+
                         }
 
                     }
@@ -780,6 +790,7 @@ namespace zf {
             }
         }
         if (z_boson != nullptr && electron_0 != nullptr && electron_1 != nullptr) {//Used to find parents of Z. for testing purposes. will remove
+
             while (Parents.size() > 0) {
                 for (size_t Mothers = 0; Mothers < Parents[0].second->numberOfMothers(); Mothers++) {
                     Parents.push_back(std::make_pair(1 + Parents[0].first, (reco::GenParticle*) Parents[0].second->mother(Mothers)));
@@ -839,6 +850,7 @@ namespace zf {
             truth_z.nakedPhistar = ReturnPhistar(e0_truth->nakedEta(), e0_truth->nakedPhi(), e1_truth->nakedEta(), e1_truth->nakedPhi());
             truth_z.eta = z_boson->eta();
             truth_z.deltaR = deltaR(e0_truth->eta(), e0_truth->phi(), e1_truth->eta(), e1_truth->phi());
+            truth_z.NumberOfJets = gen_jets->size();
             //Creating bare and born y values
             const double ELECTRON_MASS = 5.109989e-4;
             math::PtEtaPhiMLorentzVector e0lvBorn(e0_truth->bornPt(), e0_truth->bornEta(), e0_truth->bornPhi(), ELECTRON_MASS);
