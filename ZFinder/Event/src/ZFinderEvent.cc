@@ -232,8 +232,8 @@ namespace zf {
         // Calcuate weights for different PDF sets
         if (run_pdf_weights_) {
             //edm::InputTag pdfWeightTag_cteq("pdfWeights:cteq6ll"); // or any other PDF set
-            //edm::InputTag pdfWeightTag_cteq("pdfWeights:CT10nlo"); // or any other PDF set
-            edm::InputTag pdfWeightTag_cteq("pdfWeights:CT10");//Madgraph?
+            edm::InputTag pdfWeightTag_cteq("pdfWeights:CT10nlo"); // or any other PDF set
+            //edm::InputTag pdfWeightTag_cteq("pdfWeights:CT10"); //Madgraph?
             edm::Handle<std::vector<double> > weightHandle_cteq;
             iEvent.getByLabel(pdfWeightTag_cteq, weightHandle_cteq);
             weights_cteq = (*weightHandle_cteq);
@@ -642,7 +642,6 @@ namespace zf {
         truth_z.z_mom2PDG = 666;
         truth_z.z_penultimate1PDG = 666;
         truth_z.z_penultimate2PDG = 666;
-        truth_z.NumberOfJets = -1;
 
         // Electrons
         e0 = nullptr;
@@ -693,8 +692,21 @@ namespace zf {
 
         edm::Handle<reco::GenJetCollection> gen_jets;
         iEvent.getByLabel(inputtags_.JetName, gen_jets);
-        std::cout << "and the number of jets is " << gen_jets->size() << std::endl;
 
+        truth_z.njets=0;
+        reco_z.njets=0;
+        for (auto Jet : *gen_jets) {
+            truth_z.JetPt[truth_z.njets]=Jet.pt();
+            truth_z.JetEta[truth_z.njets]=Jet.eta();
+            if(fabs(Jet.eta())<2.4)truth_z.JetHT+=Jet.pt();
+            truth_z.njets++;
+            
+            reco_z.JetPt[reco_z.njets]=Jet.pt();
+            reco_z.JetEta[reco_z.njets]=Jet.eta();
+            if(fabs(Jet.eta())<2.4)reco_z.JetHT+=Jet.pt();
+            reco_z.njets++;
+        }
+        
 
 
         /* Finding the Z and daughter electrons
@@ -850,7 +862,6 @@ namespace zf {
             truth_z.nakedPhistar = ReturnPhistar(e0_truth->nakedEta(), e0_truth->nakedPhi(), e1_truth->nakedEta(), e1_truth->nakedPhi());
             truth_z.eta = z_boson->eta();
             truth_z.deltaR = deltaR(e0_truth->eta(), e0_truth->phi(), e1_truth->eta(), e1_truth->phi());
-            truth_z.NumberOfJets = gen_jets->size();
             //Creating bare and born y values
             const double ELECTRON_MASS = 5.109989e-4;
             math::PtEtaPhiMLorentzVector e0lvBorn(e0_truth->bornPt(), e0_truth->bornEta(), e0_truth->bornPhi(), ELECTRON_MASS);

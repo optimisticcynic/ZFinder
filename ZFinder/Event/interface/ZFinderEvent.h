@@ -94,7 +94,13 @@ namespace zf {
             //for events where gen XOR reco failed given selection:
             double other_y;
             double other_phistar;
-            int NumberOfJets;
+            size_t njets;
+            double JetPt[50];
+            double JetEta[50];
+            double JetHT;
+
+
+
         } reco_z, truth_z;
 
         // Event weight, used for things like pileup reweighting and the

@@ -64,12 +64,17 @@ namespace zf {
                 e_charge[1] = -2;
                 n_verts = -1;
                 n_true_pileup = -1;
-                z_mom1PDG=666; //mom 1 of Z
-                z_mom2PDG=666; //Mom 2 of Z
-                z_penultimate1PDG=666; //Initial particle for Z mom 1
-                z_penultimate2PDG=666; //Initial particle for Z mom 2
+                z_mom1PDG = 666; //mom 1 of Z
+                z_mom2PDG = 666; //Mom 2 of Z
+                z_penultimate1PDG = 666; //Initial particle for Z mom 1
+                z_penultimate2PDG = 666; //Initial particle for Z mom 2
+                njets = -1;
+                JetHT = -1;
                 t0tight = false;
                 t1tight = false;
+
+
+
             }
             // Constructor
 
@@ -91,6 +96,9 @@ namespace zf {
             double e_eta[2];
             double e_phi[2];
             double e_rnine[2];
+            double e_TrackIso[2];
+            double e_EcalIso[2];
+            double e_HcalIso[2];
             double n_true_pileup;
             int z_mom1PDG; //mom 1 of Z
             int z_mom2PDG; //Mom 2 of Z
@@ -98,7 +106,10 @@ namespace zf {
             int z_penultimate2PDG; //Initial particle for Z mom 2
             int e_charge[2];
             int n_verts;
-            int NumberOfJets;
+            int njets;
+            double JetHT;
+            double JetPt[50];
+            double JetEta[50];
             bool t0tight;
             bool t1tight;
         } reco_, truth_;
