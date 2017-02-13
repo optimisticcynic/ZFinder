@@ -13,6 +13,7 @@
 int main() {
 
     const std::string CUTLEVEL = "ZFinder/Combined Single Reco/7 60 < M_{ee} < 120";
+    const std::string MadCUTLEVEL = "ZFinder/Combined Single Reco/8 60 < M_{ee} < 120";
     //const std::string CUTLEVEL = "ZFinder/Combined Single Reco/3 acc(MUON_TIGHT) AND acc(MUON_LOOSE)";
 
     // Data
@@ -33,15 +34,16 @@ int main() {
             //"/data/whybee0a/user/lesko_2/fermi/Output/ZfinderMad15-9-8/MadgraphDressed15-9-8.root"
             //"/data/whybee0a/user/gude_2/MC/20150318_POWHEG_CT10/POWHEG_DRESSED_hadded.root"//Alexs old Powheg
             //"/data/whybee0a/user/lesko_2/fermi/Output/ZfinderMCPDFweight15-24-27/Powheg15-6-28.root"
-            "/data/whybee0a/user/lesko_2/fermi/Output/Zfinder2MCPDFweightBorn15-7-2/Powheg15-7-04.root"
+           // "/data/whybee0a/user/lesko_2/fermi/Output/Zfinder2MCPDFweightBorn15-7-2/Powheg15-7-04.root"
+            "/local/cms/user/lesko/FermiLabPowAndMadAfter2016_01_20/MadgraphKinematic2017_01_24/MGTotal.root"
             , "READ");
     DataConfig mc_config(
             mc_tfile,
-            CUTLEVEL,
+            MadCUTLEVEL,
             "DY to ee",
             // * 3 because 1177.3 is to a single flavor, but the MC has all 3
-            //1177.3 * 3.,  // cross section in pb, from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
-            1966.7, // Powheg different cross section cause does smaller min energy might not need 3
+            1177.3 * 3.,  // cross section in pb, from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
+            //1966.7, // Powheg different cross section cause does smaller min energy might not need 3
             "ZFinder/weighted_counter",  // TDir from before any cut
             SIGNAL_MC
             );
@@ -166,8 +168,8 @@ int main() {
     // Make a plot
     //plotter->plot(Z_MASS_ALL, "z_mass_all.pdf");
     //plotter->plot(Z_MASS_COARSE, "z_mass_coarse.pdf");
-    plotter->plot(Z_MASS_FINE, "z_mass_fine.pdf");
-    //plotter->plot(Z_RAPIDITY, "z_rapidity.pdf");
+    //plotter->plot(Z_MASS_FINE, "z_mass_fine.pdf");
+    plotter->plot(Z_RAPIDITY, "z_rapidity.pdf");
     //plotter->plot(Z_PT, "z_pt.pdf");
     //plotter->plot(E0_PT, "e0_pt.pdf");
     //plotter->plot(E0_ETA, "e0_eta.pdf");

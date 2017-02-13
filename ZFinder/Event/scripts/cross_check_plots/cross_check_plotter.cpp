@@ -25,7 +25,7 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     //if (PLOT_TYPE != E0_PT)return;
 
     cout << "test 1" << endl;
-    bool POWHEGSamp = true;
+    bool POWHEGSamp = false;
     if (PLOT_TYPE == Z_MASS_COARSE)return;
     TH1D* hdata;
     TH1D* mc_histo;
@@ -394,13 +394,14 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
         hdata->SetBinError(i, err_data1);
 
     }
-    if (PLOT_TYPE == Z_PT || PLOT_TYPE == PHISTAR) {
+    if (PLOT_TYPE == Z_PT || PLOT_TYPE == PHISTAR|| PLOT_TYPE ==Z_RAPIDITY) {
         string MCSample;
         if (POWHEGSamp)MCSample = "POWHEG";
         else MCSample = "MadGraph";
         string PlotType;
         if (PLOT_TYPE == Z_PT)PlotType = "QtFile.root";
         else if (PLOT_TYPE == PHISTAR)PlotType = "PhiStarFile.root";
+        else if (PLOT_TYPE ==Z_RAPIDITY)PlotType = "RapidityFile.root";
         string FileName = MCSample + PlotType;
         TFile f(FileName.c_str(), "RECREATE");
         hdata->Write("Data");

@@ -19,7 +19,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input file
 process.source = cms.Source("PoolSource",
 #        fileNames = cms.untracked.vstring('/store/mc/Summer12_DR53X/DYToEE_M-20_CT10_TuneZ2star_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/AC6646E7-36F0-E111-B2F8-00259073E3FC.root')
-         fileNames = cms.untracked.vstring('file:/uscms/home/zlesko/nobackup/ZFInderTest/PowHegTest.root')
+         fileNames = cms.untracked.vstring('file:/hdfs/cms/phedex/store/mc/Summer12_DR53X/DYToEE_M-20_CT10_TuneZ2star_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/0027DCA9-24F0-E111-BB27-20CF3027A634.root')
         )
 
 # Output file
