@@ -146,11 +146,13 @@ struct DataConfig {
         TH1* tmp_histo;
         const std::string TARGET_HISTO = tdir_uncut;
         tfile->GetObject(TARGET_HISTO.c_str(), tmp_histo);
-        std::cout<<"our target diff is "<<name.compare("phistar")<<"   with name "<<name<<std::endl;
-        if(name.compare("qcd")==0){
-            std::cout<<"we have phi* "<<TARGET_HISTO<<std::endl;
-            std::cout<<"our bin is "<<tmp_histo->GetBinContent(2)<<std::endl<<std::endl<<std::endl;
-            
+        //        std::cout<<"our target diff is "<<name.compare("phistar")<<"   with name "<<name<<std::endl;
+
+
+        if (name.compare("qcd") == 0) {
+            std::cout << "we have phi* " << TARGET_HISTO << std::endl;
+            std::cout << "our bin is " << tmp_histo->GetBinContent(2) << std::endl << std::endl << std::endl;
+
         }
         if (!tmp_histo) {
             const double phistarBins[] = {0.000, 0.004, 0.008, 0.012, 0.016, 0.020, 0.024, 0.029, 0.034, 0.039, 0.045, 0.052, 0.057, 0.064, 0.072, 0.081, 0.091, 0.102, 0.114, 0.128, 0.145, 0.165, 0.189, 0.219, 0.258, 0.312, 0.391, 0.524, 0.695, 0.918, 1.153, 1.496, 1.947, 2.522, 3.277, 10};
@@ -158,7 +160,7 @@ struct DataConfig {
 
             TGraphAsymmErrors * g;
             tfile->GetObject(TARGET_HISTO.c_str(), g);
-            std::cout<<"our target histo is "<<TARGET_HISTO<<std::endl;
+//            std::cout << "our target histo is " << TARGET_HISTO << std::endl;
             if (!g) {
                 std::cout << "Can? not open the " << name;
                 std::cout << " histogram to count events!" << std::endl;
@@ -176,23 +178,24 @@ struct DataConfig {
 
 
         }
+        
 
-    
-    const int N_BINS = tmp_histo->GetNbinsX();
-    // Integrate from the underflow bin (0) to the overflow (N+1)
-    const double EVENTS = tmp_histo->Integral(0, N_BINS + 1);
-    //std::cout << name << " Events: " << EVENTS << std::endl;
-    // Compute the luminosity
-    luminosity = EVENTS / cross_section;
-}
+        const int N_BINS = tmp_histo->GetNbinsX();
+        // Integrate from the underflow bin (0) to the overflow (N+1)
+        const double EVENTS = tmp_histo->Integral(0, N_BINS + 1);
+        //std::cout << name << " Events: " << EVENTS << std::endl;
+        // Compute the luminosity
+        luminosity = EVENTS / cross_section;
+        std::cout << "for " << name << " we have an apparent luminiosity of "<<luminosity<< std::endl;
+    }
 
-// Variables for data and MC
-TFile* tfile;
-std::string tdir_name;
-std::string name;
-double luminosity;
-DataType datatype;
-double scale_factor;
+    // Variables for data and MC
+    TFile* tfile;
+    std::string tdir_name;
+    std::string name;
+    double luminosity;
+    DataType datatype;
+    double scale_factor;
 };
 
 struct HistoStore {
@@ -200,7 +203,7 @@ struct HistoStore {
     HistoStore(
             TH1D* data_histo,
             TH1D* mc_histo,
-            std::vector<std::pair<std::string, TH1D*>> bg_histos
+            std::vector<std::pair<std::string, TH1D* >> bg_histos
             ) :
     data_histo(data_histo),
     mc_histo(mc_histo),
@@ -210,7 +213,7 @@ struct HistoStore {
     // Variables
     TH1D* data_histo;
     TH1D* mc_histo;
-    std::vector<std::pair<std::string, TH1D*>> bg_histos;
+    std::vector < std::pair < std::string, TH1D* >> bg_histos;
 };
 
 // Typedefs of our custom types
@@ -298,6 +301,6 @@ private:
     static constexpr double RATIO_HEIGHT = 0.25;
     // Colors and styles for backgrounds
     void init_color_styles();
-    std::vector<std::pair<RootFill, int>> color_styles_;
+    std::vector<std::pair<RootFill, int >> color_styles_;
 };
 #endif  // ZFINDER_CROSS_CHECK_PLOTTER_H_

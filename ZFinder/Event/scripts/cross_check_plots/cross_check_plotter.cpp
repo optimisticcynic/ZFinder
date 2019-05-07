@@ -24,7 +24,6 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     //if (PLOT_TYPE != Z_PT) return;
     //if (PLOT_TYPE != E0_PT)return;
 
-    cout << "test 1" << endl;
     bool POWHEGSamp = false;
     if (PLOT_TYPE == Z_MASS_COARSE)return;
     TH1D* hdata;
@@ -151,7 +150,6 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
         else FileName = "MADGRAPHEZmass.pdf";
     } else return;
     // setTDRStyle();
-    // std::cout << "test 1" << std::endl << std::endl;
     //const int nphistar_bins = 35;
     //double phistar_var1[nphistar_bins] = { 0.004, 0.008, 0.012, 0.016, 0.020, 0.024, 0.029, 0.034, 0.039, 0.045, 0.051, 0.057, 0.064, 0.072, 0.081, 0.091, 0.102, 0.114, 0.128, 0.145, 0.165, 0.189, 0.219, 0.258, 0.312, 0.391, 0.524, 0.695, 0.918, 1.153, 1.496, 1.947, 2.522, 3.277, 10.00};
     //Stack Plot
@@ -222,8 +220,10 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
             }
 
             if (i_pair.first == "4 QCD") {
+                cout << "FFFFFFFFFFFFFFFFFFFFFFFFFFFFUUUUUUUUUUUCK" << endl;
                 QCDPlots = dynamic_cast<TH1D*> (i_pair.second->Clone()); //ttbar
                 std::cout << "Number of bins is " << QCDPlots->GetNbinsX() << std::endl << std::endl << std::endl;
+                cout << "our intergral is " << QCDPlots->Integral() << endl;
 
             }
 
@@ -282,7 +282,7 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
 
 
             if (i_pair.first == "4 QCD") {
-                QCDPlots = dynamic_cast<TH1D*> (i_pair.second->Clone()); //ttbar
+                QCDPlots = dynamic_cast<TH1D*> (i_pair.second->Clone()); //
                 // std::cout << "Got ttbar" << std::endl;
             }
             //if(i_pair.first=="t#bar{t}")TH1F *hQCD = dynamic_cast<TH1D*> (i_pair.second->Clone());
@@ -345,7 +345,6 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     totalMC->Add(hWW);
     totalMC->Add(mc_histoCloned);
     totalMC->Add(QCDPlots);
-
     Allts->SetFillColor(kYellow + 1);
     Allts->SetFillStyle(1001);
 
@@ -376,14 +375,16 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
 
     hs->Add(QCDPlots, "hist");
     hs->Add(hWW, "hist");
-    hs->Add(hZZ, "hist");
-    hs->Add(hWZ, "hist");
-
     hs->Add(hdytautau, "hist");
+    hs->Add(hWZ, "hist");
+    hs->Add(hZZ, "hist");
     hs->Add(Allts, "hist");
 
     for (int i = 1; i <= 34; i++) {
-        //cout<<"our percentage of qcd stuff is "<<QCDPlots->GetBinContent(i)/totalMC->GetBinContent(i)*100<<endl;
+        cout << "our TauTau value is " << hdytautau->GetBinContent(i) << endl;
+        //        cout<<"our TauTau value is "<<hdytautau->GetBinContent(i)<<endl;
+        //        cout<<"our TauTau value is "<<hdytautau->GetBinContent(i)<<endl;
+        //        cout<<"our MC cloned value is "<<mc_histoCloned->GetBinContent(i)<<endl;
     }
     cout << "TOTAL PERCENTAGE IS " << Allts->Integral() / totalMC->Integral()*100 << endl;
 
@@ -394,14 +395,14 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
         hdata->SetBinError(i, err_data1);
 
     }
-    if (PLOT_TYPE == Z_PT || PLOT_TYPE == PHISTAR|| PLOT_TYPE ==Z_RAPIDITY) {
+    if (PLOT_TYPE == Z_PT || PLOT_TYPE == PHISTAR || PLOT_TYPE == Z_RAPIDITY) {
         string MCSample;
         if (POWHEGSamp)MCSample = "POWHEG";
         else MCSample = "MadGraph";
         string PlotType;
         if (PLOT_TYPE == Z_PT)PlotType = "QtFile.root";
         else if (PLOT_TYPE == PHISTAR)PlotType = "PhiStarFile.root";
-        else if (PLOT_TYPE ==Z_RAPIDITY)PlotType = "RapidityFile.root";
+        else if (PLOT_TYPE == Z_RAPIDITY)PlotType = "RapidityFile.root";
         string FileName = MCSample + PlotType;
         TFile f(FileName.c_str(), "RECREATE");
         hdata->Write("Data");
@@ -418,7 +419,7 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     TPad *pad1 = new TPad("pad1", "pad1", 0, 0.1, 1, 1);
     pad1->Draw();
     pad1->cd();
-    pad1->Range(-6.246851, -1575.816, 6.246851, 4673.11);
+    //    pad1->Range(-6.246851, -1575.816, 6.246851, 4673.11);
     pad1->SetFillColor(0);
     pad1->SetBorderMode(0);
     pad1->SetBorderSize(2);
@@ -469,7 +470,7 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     mark1.DrawLatex(0.15, 0.955, "CMS");
     mark2.DrawLatex(0.25, 0.955, " Preliminary");
     //if (axis1)hs->GetXaxis()->SetRangeUser(-3, 3);
-    //if (PLOT_TYPE == Z_PT)hs->GetXaxis()->SetRangeUser(0, 300);
+    if (PLOT_TYPE == Z_PT)hs->GetXaxis()->SetRangeUser(0, 300);
     //
     hs->GetXaxis()->CenterTitle();
     hs->GetXaxis()->SetLabelOffset(10);
@@ -486,7 +487,7 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
 
     //TLegend* tl = new TLegend(0.76, 0.7, 0.97, 0.942);
     TLegend* tl;
-    if (PLOT_TYPE != PHISTAR && PLOT_TYPE != Z_PT&&PLOT_TYPE !=Z_MASS_FINE)tl = new TLegend(0.54, .67, .86, 0.95);
+    if (PLOT_TYPE != PHISTAR && PLOT_TYPE != Z_PT && PLOT_TYPE != Z_MASS_FINE)tl = new TLegend(0.54, .67, .86, 0.95);
     else tl = new TLegend(0.49, .67, .86, 0.92);
     tl->AddEntry(hdata, "Data", "lp");
     if (POWHEGSamp)tl->AddEntry(mc_histoCloned, "#gamma*/Z#rightarrow ee(POWHEG)", "f");
@@ -505,10 +506,8 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
 
     //TLegend* tl2 = new TLegend(0.83, 0.7, 0.945, 0.81); //created second legend to make stuff fit
     TLegend* tl2;
-    cout << "test 1" << endl;
-    if (PLOT_TYPE != PHISTAR && PLOT_TYPE != Z_PT&&PLOT_TYPE !=Z_MASS_FINE) tl2 = new TLegend(0.75, .67, 0.993, .8);
+    if (PLOT_TYPE != PHISTAR && PLOT_TYPE != Z_PT && PLOT_TYPE != Z_MASS_FINE) tl2 = new TLegend(0.75, .67, 0.993, .8);
     else tl2 = new TLegend(0.7, .67, 0.993, .8);
-    cout << "test 2" << endl;
     //tl2->AddEntry(hdytautau, "#gamma*/Z#rightarrow#tau#tau", "f");
     //tl2->AddEntry(Allts, "t#bar{t}+tW+#bar{t}W", "f");
     tl2->AddEntry(hWZ, "WZ", "f");
@@ -530,7 +529,6 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     if (PLOT_TYPE == PHISTAR)pad1->SetLogx();
 
     c1->cd();
-    cout << "test 3" << endl;
     if (hdata->GetNbinsX() != totalMC->GetNbinsX()) {
         std::cout << " Data and mc bins do not match " << std::endl;
         std::cout << " number of bins for Data " << hdata->GetNbinsX() << " and the number of bins for MC is" << totalMC->GetNbinsX() << std::endl;
@@ -545,7 +543,6 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     double err_mc1 = 0.0;
     TH1D* hPull = dynamic_cast<TH1D*> (hdytautau->Clone());
     TLine* line;
-    cout << "test 4" << endl;
     if (!axis1)line = new TLine(hdytautau->GetBinLowEdge(1), 1., hdytautau->GetBinLowEdge(hdytautau->GetNbinsX()), 1.);
     if (PLOT_TYPE == Z_PT)line = new TLine(hdytautau->GetBinLowEdge(1), 1., 300, 1.);
 
@@ -556,7 +553,6 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     line->SetLineStyle(2);
 
 
-    cout << "test 5" << endl;
     for (unsigned int i = 1; i <= ((unsigned int) hdata->GetNbinsX()); i++) {
         data = hdata->GetBinContent(i);
         err_data = hdata->GetBinError(i);
@@ -571,14 +567,11 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
             hPull->SetBinError(i, err_mc1);
         }
     }
-    cout << "test 6" << endl;
     TPad *pad2 = new TPad("pad2", "pad2", 0, 0.007, 1, 0.25);
     pad2->Draw();
     pad2->cd();
     if (PLOT_TYPE == PHISTAR)pad2->SetLogx();
-    cout << "test 7" << endl;
-    pad2->Range(-6.133501, -0.02305455, 6.246851, 1.268);
-    cout << "test 8" << endl;
+    //    pad2->Range(-6.133501, -0.02305455, 6.246851, 1.268);
     pad2->SetFillColor(0);
     pad2->SetBorderMode(0);
     pad2->SetBorderSize(2);
@@ -602,7 +595,6 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     TAxis *yaxis = hPull->GetYaxis();
     xaxis->SetTitle(xaxisname.c_str());
     xaxis->CenterTitle();
-    cout << "test 9" << endl;
     xaxis->SetLabelSize(2.4 * xaxis->GetLabelSize());
     if (PLOT_TYPE == Z_PT)xaxis->SetLabelSize(.13);
     xaxis->SetTitleSize(AxisTSize);
@@ -611,6 +603,7 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     yaxis->SetRangeUser(1 - range, 1 + range);
     if (axis1)xaxis->SetRangeUser(-3, 3);
     if (PLOT_TYPE == Z_PT)xaxis->SetRangeUser(0, 300);
+    if (PLOT_TYPE == PHISTAR)yaxis->SetRangeUser(.96, 1.1);
     yaxis->SetTitle("Data/MC");
     yaxis->CenterTitle();
     yaxis->SetLabelSize(2.5 * yaxis->GetLabelSize());
@@ -619,10 +612,8 @@ void sample(TH1D* hdataold, TH1D* mc_histoold, std::vector<std::pair<std::string
     yaxis->SetTitleSize(.16);
     yaxis->SetTitleOffset(.32);
     yaxis->SetNdivisions(503);
-    cout << "test 10" << endl;
     c1->SaveAs(FileName.c_str());
     delete c1;
-    cout << "test11" << endl;
 }
 
 CrossCheckPlotter::CrossCheckPlotter(
@@ -687,10 +678,12 @@ void CrossCheckPlotter::set_mc_scale_factors() {
      *     scale_factor = bg_lumi / signal_lumi
      */
     const double SIG_LUMI = mc_config_.luminosity;
+    cout<<"our MC_config luminosity is set to "<<SIG_LUMI<<endl;
     mc_config_.scale_factor = 1.;
-
+   
     for (auto& i_pair : bg_configs_) {
         double new_scale = SIG_LUMI / i_pair.second.luminosity;
+        cout<<"FOR "<<i_pair.first<<" OUR APPARENT LUMINOSITY IS "<<i_pair.second.luminosity<< "   AND OUR SCALE FACTOR IS "<<new_scale<<endl;
         i_pair.second.scale_factor = new_scale;
     }
 }
@@ -730,6 +723,7 @@ double CrossCheckPlotter::set_area_rescale_factor() {
     // Copy the MC histogram and add all the bg histos
     TH1D* tmp_histo = dynamic_cast<TH1D*> (mc_histo->Clone());
     for (auto& i_pair : bg_histos) {
+        if (i_pair.first == "4 QCD")continue;
         tmp_histo->Add(i_pair.second);
     }
 
@@ -848,14 +842,14 @@ HistoStore CrossCheckPlotter::open_histos(
     if (bg_configs_.size() != 0) {
         // Open each BG and save to a vector with its name
         for (auto& i_pair : bg_configs_) {
-            const std::string BG_HISTO_NAME = i_pair.second.tdir_name + "/" + HISTO_NAME;
+            std::string BG_HISTO_NAME = i_pair.second.tdir_name + "/" + HISTO_NAME;
             TH1D* bg_histo;
+           
             i_pair.second.tfile->GetObject(BG_HISTO_NAME.c_str(), bg_histo);
-            //if()cout<<"AND OUR BIN SEG FAULT ONE "<<bg_histo->GetBinContent(5)<<endl;
             if (bg_histo && (i_pair.first.compare("4 QCD") == 0)) {
                 cout << "OUR HISTO NAME IS " << BG_HISTO_NAME << endl << endl << endl;
                 cout << "QCD bin Number of bins is " << bg_histo->GetNbinsX() << endl << endl << endl;
-                cout<<"OUR CENTER BIN VALUE IS "<< bg_histo->GetBinContent(60);
+                cout << "OUR CENTER BIN VALUE IS " << bg_histo->GetBinContent(60);
             }
             if (!bg_histo && (i_pair.first.compare("4 QCD") != 0)) {
                 std::cout << "Can not open the BG Histogram for ";
@@ -871,13 +865,16 @@ HistoStore CrossCheckPlotter::open_histos(
             // to use the same histogram twice
             TH1D* bg_clone = dynamic_cast<TH1D*> (bg_histo->Clone());
 
-            bg_clone->Scale(1, "width"); //QCD should already have bin width involved in it
-            if (DO_RESCALE) {
+             cout << "ABOUT TO SCALE BIN 1 is " << bg_clone->GetBinContent(1) << "   /and scale factor is " << i_pair.second.scale_factor << endl;
+            if (i_pair.first.compare("4 QCD") != 0)bg_clone->Scale(1, "width"); //QCD should already have bin width involved in it
+            if (DO_RESCALE&&data_config_.luminosity>0) {
                 if (i_pair.first.compare("4 QCD") == 0 && HISTO_NAME.compare("z_pt") == 0) {
-                    cout << "ABOUT TO SCALE BIN 1 is " << bg_clone->GetBinContent(1) << "   /and scale factor is " << i_pair.second.scale_factor << endl;
+                   
 
                 }
-                bg_clone->Scale(i_pair.second.scale_factor);
+//                cout << "FOr " << i_pair.first << " our scale factor is " << i_pair.second.scale_factor << endl;
+                if (i_pair.first.compare("4 QCD") != 0)
+                    if(data_config_.luminosity<0)bg_clone->Scale(i_pair.second.scale_factor);
                 if (i_pair.first.compare("4 QCD") == 0 && HISTO_NAME.compare("z_pt") == 0) {
                     cout << "NEW VALUE FOR BIN 1 IS :" << bg_clone->GetBinContent(1) << endl;
                 }
@@ -915,6 +912,7 @@ void CrossCheckPlotter::plot(
         return;
     }
 
+    
     // Rebin if the binning is greater than 0 in size. If it is size one assume
     // we want a simple rebinning (where N bins are combined to 1), otherwise
     // the vector is the edges of the bins.
@@ -922,11 +920,12 @@ void CrossCheckPlotter::plot(
         mc_histo->Rebin(static_cast<int> (plot_config.binning[0]));
         data_histo->Rebin(static_cast<int> (plot_config.binning[0]));
         for (auto& i_pair : bg_histos) {
+           
             if ((PLOT_TYPE == PHISTAR || PLOT_TYPE == Z_PT)&&(i_pair.first == "4 QCD")) {
                 cout << "TEST Before" << i_pair.second->GetNbinsX() << endl << endl << endl;
             }
-            i_pair.second->Rebin(static_cast<int> (plot_config.binning[0]));
-            if ((PLOT_TYPE == PHISTAR || PLOT_TYPE == Z_PT)&&(i_pair.first == "4 QCD")) {
+            if (i_pair.first != "4 QCD" || PLOT_TYPE != Z_PT)i_pair.second->Rebin(static_cast<int> (plot_config.binning[0]));
+            if ((PLOT_TYPE == PHISTAR || PLOT_TYPE == Z_PT || PLOT_TYPE == Z_MASS_FINE)&&(i_pair.first == "4 QCD")) {
                 cout << "TEST After" << i_pair.second->GetNbinsX() << endl << endl << endl;
             }
         }
@@ -965,7 +964,7 @@ void CrossCheckPlotter::plot(
     // Signal MC
     if (area_rescale_factor_ > 0) {
         // Normalize by area
-        //std::cout << " so mc_hist scale factor is :" << area_rescale_factor_ << std::endl << std::endl;
+        std::cout << " so mc_hist scale factor is :" << area_rescale_factor_ << std::endl << std::endl;
         mc_histo->Scale(area_rescale_factor_);
     } else {
         // Normalize by luminosity
@@ -977,12 +976,15 @@ void CrossCheckPlotter::plot(
         // Locate the DataConfig by name
         auto it = bg_configs_.find(i_pair.first);
         if (it != bg_configs_.end()) {
-            if (area_rescale_factor_ > 0) {
+            if (area_rescale_factor_ > 0) {//Sanity checks
                 // Normalize by area
+                cout<<"OKay my head hurts now................................................."<<area_rescale_factor_<<endl;
                 i_pair.second->Scale(area_rescale_factor_);
             } else {
                 // Normalize by luminosity
                 const double RESCALING = get_rescaling(data_config_, it->second);
+                
+                
                 i_pair.second->Scale(RESCALING);
             }
         } else {
@@ -1003,7 +1005,6 @@ void CrossCheckPlotter::plot(
     // Make a stack to store the MC and a ratio histogram for the ratio plot
     THStack* histo_stack = new THStack("hs", "Monte Carlo histrogram stack");
     TH1D* ratio_histo = dynamic_cast<TH1D*> (data_histo->Clone());
-
 
     sample(data_histo, mc_histo, bg_histos, PLOT_TYPE);
     // Title
